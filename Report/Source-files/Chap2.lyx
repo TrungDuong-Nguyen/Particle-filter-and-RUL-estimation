@@ -1,0 +1,1444 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass scrbook
+\begin_preamble
+% DO NOT ALTER THIS PREAMBLE!!!
+%
+% This preamble is designed to ensure that the User's Guide prints
+% out as advertised. If you mess with this preamble,
+% parts of the User's Guide may not print out as expected.  If you
+% have problems LaTeXing this file, please contact 
+% the documentation team
+% email: lyx-docs@lists.lyx.org
+
+\usepackage{ifpdf} % part of the hyperref bundle
+\ifpdf % if pdflatex is used
+
+ % set fonts for nicer pdf view
+ \IfFileExists{lmodern.sty}{\usepackage{lmodern}}{}
+
+\fi % end if pdflatex is used
+
+% for correct jump positions whe clicking on a link to a float
+\usepackage[figure]{hypcap}
+
+% the pages of the TOC is numbered roman
+% and a pdf-bookmark for the TOC is added
+\let\myTOC\tableofcontents
+\renewcommand\tableofcontents{%
+  \frontmatter
+  \pdfbookmark[1]{\contentsname}{}
+  \myTOC
+  \mainmatter }
+
+% define a short command for \textvisiblespace
+\newcommand{\spce}{\textvisiblespace}
+
+% macro for italic page numbers in the index
+\newcommand{\IndexDef}[1]{\textit{#1}}
+
+% for customized page headers/footers
+% only needed because they are only used in one section of the document
+\usepackage{fancyhdr}
+% change header rule width
+\renewcommand{\headrulewidth}{2pt}
+
+% workaround for a makeindex bug,
+% see sec. "Index Entry Order"
+% only uncomment this when you are using makindex
+%\let\OrgIndex\index 
+%\renewcommand*{\index}[1]{\OrgIndex{#1}}
+\usepackage{xr}
+\externaldocument{Chap1}
+\end_preamble
+\options refpage,intoc,bibliography=totoc,index=totoc,BCOR7.5mm,captions=tableheading
+\use_default_options false
+\master Rapport de stage
+\begin_modules
+customHeadersFooters
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref true
+\pdf_title "The LyX User's Guide"
+\pdf_author "LyX Team"
+\pdf_subject "LyX"
+\pdf_keywords "LyX"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered true
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks true
+\pdf_backref false
+\pdf_pdfusetitle false
+\pdf_quoted_options "linkcolor=black, citecolor=black, urlcolor=blue, filecolor=blue, pdfpagelayout=OneColumn, pdfnewwindow=true, pdfstartview=XYZ, plainpages=false"
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\notefontcolor #0000ff
+\branch Question
+\selected 1
+\filename_suffix 0
+\color #00ff00
+\end_branch
+\branch Answer
+\selected 0
+\filename_suffix 0
+\color #aa55ff
+\end_branch
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 2
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict true
+\end_header
+
+\begin_body
+
+\begin_layout Chapter
+Base mathématique du filtre particulaire
+\end_layout
+
+\begin_layout Standard
+Dans ce chapitre on présente l'approche Bayésienne pour le problème d'estimation
+ ainsi que l'utilisation d'une technique d'approximation numérique de type
+ Monte Carlo.
+ Enfin, un algorithme général du filtre particulaire est donné dans la section
+ 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:SIS filtre particulaire"
+
+\end_inset
+
+
+\color inherit
+.
+\end_layout
+
+\begin_layout Section
+Estimation Bayésienne
+\end_layout
+
+\begin_layout Standard
+Le but est d'estimer de façon récursive l'état caché 
+\begin_inset Formula $\left(x_{t}\right)_{t\geq0}$
+\end_inset
+
+ au vu des observations 
+\begin_inset Formula $\left(y_{0},\,\ldots,\, y_{t}\right)$
+\end_inset
+
+.
+ L'estimation Bayésienne récursive consiste deux phases: prédiction et correctio
+n (mise à jour).
+ Dans la phase de prédiction, suppose que l'on dispose déjà la loi a posteriori
+\shape italic
+ 
+\shape default
+
+\begin_inset Formula $p\left(X_{t-1}\mid Y_{t-1}\right)$
+\end_inset
+
+, on peut trouver la loi a priori
+\shape italic
+ 
+\begin_inset Formula $p\left(x_{t}\mid Y_{t-1}\right)$
+\end_inset
+
+ 
+\shape default
+à l'instant 
+\begin_inset Formula $\left(t\right)$
+\end_inset
+
+ en utilisant l'équation Chapman - Kolmogorov:
+\begin_inset Formula 
+\begin{equation}
+p\left(x_{t}\mid Y_{t-1}\right)=\int p\left(x_{t}\mid x_{t-1},\, Y_{t-1}\right)\times p\left(x_{t-1}\mid Y_{t-1}\right)dx_{t-1}=\int p\left(x_{t}\mid x_{t-1}\right)\times p\left(x_{t-1}\mid Y_{t-1}\right)dx_{t-1}\label{eq:prédiction}
+\end{equation}
+
+\end_inset
+
+Dans la deuxième phase, afin de corriger la prédiction, on fait appel à
+ la fonction de vraisemblance qui tient compte de la nouvelle valeur de
+ mesure 
+\begin_inset Formula $\left(y_{t}\right)$
+\end_inset
+
+.
+ La loi 
+\shape italic
+a posteriori
+\shape default
+ 
+\begin_inset Formula $p\left(x_{t}\mid Y_{t}\right)$
+\end_inset
+
+ est calculée à l'aide de la formule suivante:
+\begin_inset Formula 
+\begin{equation}
+p\left(x_{t}\mid Y_{t}\right)=\frac{p\left(y_{t}\mid x_{t}\right)\times p\left(x_{t}\mid Y_{t-1}\right)}{p\left(y_{t}\mid Y_{t-1}\right)}=\frac{p\left(y_{t}\mid x_{t}\right)\times p\left(x_{t}\mid Y_{t-1}\right)}{\int p\left(y_{t}\mid x_{t}\right)\times p\left(x_{t}\mid Y_{t-1}\right)dx_{t}}\label{eq:correction}
+\end{equation}
+
+\end_inset
+
+Le principe de l'estimation Bayésienne est présenté dans la figure 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Principe de l'estimation Bayésienne"
+
+\end_inset
+
+
+\color black
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Figures/Bayesian Estimation (2).jpg
+	scale 75
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Principe de l'estimation Bayésienne"
+
+\end_inset
+
+Deux phases de l'estimation Bayésienne
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+Enfin, après avoir obtenu la loi a posteriori, le niveau de dégradation
+ 
+\begin_inset Formula $\left(x_{t}\right)$
+\end_inset
+
+ est déterminé par un estimateur dit minimum de l'erreur quadratique moyenne:
+\begin_inset Formula 
+\[
+x_{MMSE}=\int x_{t}\times p\left(x_{t}\mid Y_{t}\right)dx_{t}
+\]
+
+\end_inset
+
+Pourtant, on n'obtient que le calcul analytique des intégrations
+\color blue
+ 
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:prédiction"
+
+\end_inset
+
+
+\color inherit
+ et 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:correction"
+
+\end_inset
+
+
+\color inherit
+ dans très peu de cas particuliers (par exemple 
+\begin_inset Formula $f\left(.\right)$
+\end_inset
+
+ et 
+\begin_inset Formula $h\left(.\right)$
+\end_inset
+
+ sont linéaires, 
+\begin_inset Formula $\left(v_{t}\right)$
+\end_inset
+
+ et 
+\begin_inset Formula $\left(\varepsilon_{t}\right)$
+\end_inset
+
+ sont Gaussiens).
+ Donc, on se propose d'utiliser la méthode de Monte Carlo qui offre une
+ approximation des intégrations.
+ La section 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Méthode de Monte Carlo"
+
+\end_inset
+
+
+\color inherit
+ donne des interprétations mathématiques de cette méthode, ce qui nous aide
+ à comprendre comment le filtre particulaire est construit.
+\end_layout
+
+\begin_layout Section
+Méthode de Monte Carlo
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Méthode de Monte Carlo"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Échantillonnage d'importance
+\end_layout
+
+\begin_layout Standard
+L'idée de base de la méthode de Monte Carlo consiste à utiliser la technique
+ d'
+\shape italic
+échantillonnage d'importance
+\shape default
+.
+ Cette technique permet d'approcher l'intégration d'une densité de probabilité
+ grâce à un ensemble des variables aléatoires générées selon une loi appelée
+ 
+\shape italic
+loi d'importance
+\shape default
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Soit 
+\begin_inset Formula $p\left(x\right)$
+\end_inset
+
+ une densité de probabilité et 
+\begin_inset Formula $f\left(x\right)$
+\end_inset
+
+ une fonction quelconque, on considère l'intégration suivante:
+\begin_inset Formula 
+\begin{equation}
+E_{p}\left\{ f\left(x\right)\right\} =\int f\left(x\right)\times p\left(x\right)dx\label{eq:intégration 1}
+\end{equation}
+
+\end_inset
+
+Si 
+\begin_inset Formula $p\left(x\right)$
+\end_inset
+
+est plutôt complexe, il est nécessaire d'approcher cette intégration au
+ lieu d'intégrer directement.
+ Comme il est difficile d'échantillonner selon 
+\begin_inset Formula $p\left(x\right)$
+\end_inset
+
+, on peut échantillonner selon une loi 
+\begin_inset Formula $q\left(x\right)$
+\end_inset
+
+ qui est plus simple, i.e:
+\begin_inset Formula 
+\[
+X\left(i\right)\,{\normalcolor \sim}\, q\left(x\right),\, i=1:N_{s}
+\]
+
+\end_inset
+
+Ainsi: 
+\begin_inset Formula 
+\begin{equation}
+q\left(x\right)\approx\frac{1}{N_{s}}\sum_{i=1}^{N_{s}}\delta(x-X\left(i\right))\label{eq:approximation q(x)}
+\end{equation}
+
+\end_inset
+
+où 
+\begin_inset Formula $\delta$
+\end_inset
+
+ est la distribution de Dirac.
+\end_layout
+
+\begin_layout Standard
+La loi des grands nombres assure que l'approximation 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:approximation q(x)"
+
+\end_inset
+
+
+\color inherit
+ converge presque sûr à 
+\begin_inset Formula $q\left(x\right)$
+\end_inset
+
+ lorsque 
+\begin_inset Formula $N{}_{s}\rightarrow\infty$
+\end_inset
+
+:
+\begin_inset Formula 
+\[
+\frac{1}{N_{s}}\sum_{i=1}^{N_{s}}\delta(x-X\left(i\right))\rightarrow q\left(x\right)
+\]
+
+\end_inset
+
+En utilisant 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:approximation q(x)"
+
+\end_inset
+
+
+\color inherit
+ et la propriété de la distribution Dirac, l'intégration 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:intégration 1"
+
+\end_inset
+
+
+\color inherit
+ est équivalent à:
+\begin_inset Formula 
+\begin{eqnarray}
+E_{p}\left\{ f\left(x\right)\right\}  & = & \int f\left(x\right)\times p\left(x\right)dx=\int f\left(x\right)\times\left(\frac{p\left(x\right)}{q(x)}\right)\times q\left(x\right)dx\nonumber \\
+ & \approx & \int f\left(x\right)\times\left(\frac{p\left(x\right)}{q(x)}\right)\times\frac{1}{N_{s}}\sum_{i=1}^{N_{s}}\delta(x-X\left(i\right))dx\nonumber \\
+ & \approx & \frac{1}{N_{s}}\sum_{i=1}^{N_{s}}f\left(X\left(i\right)\right)\times\left(\frac{p\left(X\left(i\right)\right)}{q\left(X\left(i\right)\right)}\right)\label{eq:intégratiion 3}
+\end{eqnarray}
+
+\end_inset
+
+Dans ce cas 
+\begin_inset Formula $q\left(x\right)$
+\end_inset
+
+ est appelé loi d'importance
+\shape italic
+.
+ 
+\shape default
+Le choix de la loi d'importance
+\shape italic
+ 
+\shape default
+contribue le plus à la performance de la technique d'échantillonnage d'importanc
+e.
+ En effet, à condition de pouvoir simuler selon 
+\begin_inset Formula $q\left(x\right)$
+\end_inset
+
+, plus 
+\begin_inset Formula $q\left(x\right)$
+\end_inset
+
+ approche 
+\begin_inset Formula $p\left(x\right)$
+\end_inset
+
+ , plus le filtre particulaire est efficient.
+\end_layout
+
+\begin_layout Standard
+De même, considère l'intégration:
+\begin_inset Formula 
+\[
+E_{p}\left\{ f\left(X_{t}\right)\right\} =\int f\left(X_{t}\right)\times p\left(X_{t}\mid Y_{t}\right)dX_{t}
+\]
+
+\end_inset
+
+On souhaite approcher cette intégration alors que l'on sait seulement échantillo
+nner selon 
+\begin_inset Formula $q\left(X_{t}\mid Y_{t}\right)$
+\end_inset
+
+ au lieu de 
+\begin_inset Formula $p\left(X_{t}\mid Y_{t}\right)$
+\end_inset
+
+.
+ L'intégration ci-dessus peut être ré-écrit:
+\begin_inset Formula 
+\[
+E_{p}\left\{ f\left(X_{t}\right)\right\} =\int f\left(X_{t}\right)\times\left[\frac{p\left(X_{t}\mid Y_{t}\right)}{q\left(X_{t}\mid Y_{t}\right)}\right]\times q\left(X_{t}\mid Y_{t}\right)dX_{t}
+\]
+
+\end_inset
+
+Grâce à la formule de Bayes:
+\begin_inset Formula 
+\[
+p\left(X_{t}\mid Y_{t}\right)=\frac{p\left(Y_{t}\mid X_{t}\right)\times p\left(X_{t}\right)}{p\left(Y_{t}\right)}
+\]
+
+\end_inset
+
+on obtient: 
+\begin_inset Formula 
+\begin{eqnarray*}
+E_{p}\left\{ f\left(X_{t}\right)\right\}  & = & \frac{1}{p\left(Y_{t}\right)}\int f\left(X_{t}\right)\times\left[\frac{p\left(Y_{t}\mid X_{t}\right)\times p\left(X_{t}\right)}{q\left(X_{t}\mid Y_{t}\right)}\right]\times q\left(X_{t}\mid Y_{t}\right)dX_{t}\\
+ & = & \frac{1}{\int p\left(Y_{t}\mid X_{t}\right)\times p\left(X_{t}\right)dX_{t}}\times\int f\left(X_{t}\right)\times\left[\frac{p\left(Y_{t}\mid X_{t}\right)\times p\left(X_{t}\right)}{q\left(X_{t}\mid Y_{t}\right)}\right]\times q\left(X_{t}\mid Y_{t}\right)dX_{t}
+\end{eqnarray*}
+
+\end_inset
+
+En introduisant un facteur dit 
+\shape italic
+poids d'importance
+\shape default
+ égale à la partie dans le crochet:
+\begin_inset Formula 
+\begin{equation}
+\omega_{t}=\frac{p\left(Y_{t}\mid X_{t}\right)\times p\left(X_{t}\right)}{q\left(X_{t}\mid Y_{t}\right)}\label{eq:poids d'importance IS}
+\end{equation}
+
+\end_inset
+
+l'intégration au dessus peut être simplifiée à:
+\begin_inset Formula 
+\begin{equation}
+E_{p}\left\{ f\left(X_{t}\right)\right\} =\frac{\int\omega_{t}\times f\left(X_{t}\right)\times q\left(X_{t}\mid Y_{t}\right)dX_{t}}{\int\omega_{t}\times q\left(X_{t}\mid Y_{t}\right)dX_{t}}\label{eq:intégration 4}
+\end{equation}
+
+\end_inset
+
+Si on génère 
+\begin_inset Formula $\left(N_{s}\right)$
+\end_inset
+
+ échantillons selon la loi d'importance
+\shape italic
+ 
+\begin_inset Formula $q\left(X_{t}\mid Y_{t}\right)$
+\end_inset
+
+
+\shape default
+: 
+\begin_inset Formula $X_{t}^{i}\sim q\left(X_{t}\mid Y_{t}\right)$
+\end_inset
+
+, d'où 
+\begin_inset Formula $q\left(X_{t}\mid Y_{t}\right)\approx\frac{1}{N_{s}}\sum_{i=1}^{N_{s}}\delta\left(X_{t}-X_{t}^{i}\right)$
+\end_inset
+
+, en reprenant le résultat 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:intégratiion 3"
+
+\end_inset
+
+
+\color inherit
+ l'espérance 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:intégration 4"
+
+\end_inset
+
+
+\color inherit
+ devient:
+\begin_inset Formula 
+\[
+E_{p}\left\{ f\left(X_{t}\right)\right\} \approx\frac{\int\omega_{t}\times f\left(X_{t}\right)\times\frac{1}{N_{s}}\sum_{i=1}^{N_{s}}\delta\left(X_{t}-X_{t}^{i}\right)dX_{t}}{\int\omega_{t}\times\frac{1}{N_{s}}\sum_{i=1}^{N_{s}}\delta\left(X_{t}-X_{t}^{i}\right)dX_{t}}\approx\frac{\sum_{i=1}^{N_{s}}\omega_{t}^{i}\times f\left(X_{t}^{i}\right)}{\sum_{i=1}^{N_{s}}\omega_{t}^{i}}
+\]
+
+\end_inset
+
+De plus, si le 
+\shape italic
+poids d'importance normalisé
+\shape default
+ est défini telle que:
+\begin_inset Formula 
+\[
+\text{W}_{t}^{i}=\frac{\omega_{t}^{i}}{\sum_{i=1}^{N_{s}}\omega_{t}^{i}}
+\]
+
+\end_inset
+
+où 
+\begin_inset Formula $\omega_{t}^{i}=\frac{p\left(Y_{t}\mid X_{t}^{i}\right)\times p\left(X_{t}^{i}\right)}{q\left(X_{t}^{i}\mid Y_{t}\right)}$
+\end_inset
+
+, on obtient finalement l'approximation:
+\begin_inset Formula 
+\[
+E_{p}\left\{ f\left(X_{t}\right)\right\} =\int f\left(X_{t}\right)\times p\left(X_{t}\mid Y_{t}\right)dX_{t}\approx\sum_{i=1}^{N_{s}}\text{W}_{t}^{i}\times f\left(X_{t}^{i}\right)
+\]
+
+\end_inset
+
+à partir de laquelle on peut déduire l'approximation de la loi a posteriori:
+\begin_inset Formula 
+\begin{equation}
+p\left(X_{t}\mid Y_{t}\right)\approx\sum_{i=1}^{N_{e}}\text{W}_{t}^{i}\times\delta\left(X_{t}-X_{t}^{i}\right)\label{eq:loi a posteriori 1}
+\end{equation}
+
+\end_inset
+
+avec 
+\begin_inset Formula $\sum_{i=1}^{N_{s}}\text{W}_{t}^{i}=1$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+On peut voir que la loi a posteriori 
+\begin_inset Formula $p\left(X_{t}\mid Y_{t}\right)$
+\end_inset
+
+ est approchée par une distribution discrète pondérée caractérisée par un
+ ensemble des particules 
+\begin_inset Formula $\left\{ X_{t}^{i},\text{W}_{t}^{i}\right\} _{i=1}^{N_{s}}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Échantillonnage d'importance séquentielle
+\end_layout
+
+\begin_layout Standard
+La technique d'échantillonnage d'importance est inappopriée pour le problème
+ d'estimation récursive à cause du calcul coûteux du poids d'importance
+\shape italic
+.
+ 
+\shape default
+En effet, chaque fois qu'une nouvelle valeur de mesure 
+\begin_inset Formula $\left(y_{t}\right)$
+\end_inset
+
+ est disponible, le re-calcul du poids d'importance
+\shape italic
+ 
+\shape default
+selon la formule 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:poids d'importance IS"
+
+\end_inset
+
+
+\color inherit
+ est vraiment pénible car on doit prendre en compte tous les valeurs de
+ mesures dans le passé 
+\begin_inset Formula $\left(Y_{t-1}\right)$
+\end_inset
+
+ ainsi que tous les états 
+\begin_inset Formula $\left(X_{t}\right)$
+\end_inset
+
+.
+ La technique d'échantillonnage d'importance séquentielle (
+\shape italic
+sequential important sampling
+\shape default
+ - SIS en anglais) est introduite pour traiter ce problème.
+\end_layout
+
+\begin_layout Standard
+L'idée de la technique SIS est interprétée comme suit: Suppose que l'on
+ dispose un ensemble de particules 
+\begin_inset Formula $\left\{ X_{t-1}^{i},\text{W}_{t-1}^{i}\right\} _{i=1}^{N_{s}}$
+\end_inset
+
+ qui approche la distribution a posteriori 
+\begin_inset Formula $p\left(X_{t-1}\mid Y_{t-1}\right)$
+\end_inset
+
+.
+ À l'acquisition de 
+\begin_inset Formula $\left(y_{t}\right)$
+\end_inset
+
+, on souhaite approcher 
+\begin_inset Formula $p\left(X_{t}\mid Y_{t}\right)$
+\end_inset
+
+ en propageant chaque particule de l'ensemble 
+\begin_inset Formula $\left\{ X_{t-1}^{i},\text{W}_{t-1}^{i}\right\} _{i=1}^{N_{s}}$
+\end_inset
+
+ suivant deux étapes: muter (prédire) les échantillons 
+\begin_inset Formula $\left\{ X_{t-1}^{i}\right\} _{i=1}^{N_{s}}$
+\end_inset
+
+, puis mettre à jour leurs poids d'importances
+\shape italic
+ 
+\begin_inset Formula $\left\{ \text{W}_{t-1}^{i}\right\} _{i=1}^{N_{s}}$
+\end_inset
+
+ 
+\shape default
+correspondants.
+ De cette manière, la technique d'échantillonnage d'importance doit être
+ modifiée de telle sorte que l'on peut approcher 
+\begin_inset Formula $p\left(X_{t-1}\mid Y_{t-1}\right)$
+\end_inset
+
+ à l'aide des poids d'importances 
+\begin_inset Formula $\left\{ \text{W}_{t-1}^{i}\right\} _{i=1}^{N_{s}}$
+\end_inset
+
+ et puis 
+\begin_inset Formula $p\left(X_{t}\mid Y_{t}\right)$
+\end_inset
+
+ avec des nouveaux poids 
+\begin_inset Formula $\left\{ \text{W}_{t}^{i}\right\} _{i=1}^{N_{s}}$
+\end_inset
+
+.
+ Cette procédure est réalisé séquentiellement en faisant appel à une suite
+ de loi d'importance
+\shape italic
+ 
+\shape default
+telle que 
+\begin_inset Formula $X_{t-1}^{i}\sim q\left(X_{t-1}\mid Y_{t-1}\right)$
+\end_inset
+
+, 
+\begin_inset Formula $X_{t}^{i}\sim q\left(X_{t}\mid Y_{t}\right)$
+\end_inset
+
+ et ainsi de suite.
+ 
+\end_layout
+
+\begin_layout Standard
+On s'intéresse maintenant à comment entraîner l'approximation séquentielle
+ de la loi a posteriori.
+ Reprend l'équation 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:poids d'importance IS"
+
+\end_inset
+
+
+\color inherit
+, on décompose la forme simplifiée de son dénominateur:
+\begin_inset Formula 
+\begin{eqnarray*}
+q\left(X_{t}\mid Y_{t}\right) & = & q\left(x_{t},X_{t-1}\mid Y_{t}\right)=\frac{q\left(x_{t},X_{t-1},Y_{t}\right)}{q\left(Y_{t}\right)}\\
+ & = & \frac{q\left(x_{t}\mid X_{t-1},Y_{t}\right)\times q\left(X_{t-1},Y_{t}\right)}{q\left(Y_{t}\right)}\\
+ & = & q\left(x_{t}\mid X_{t-1},Y_{t}\right)\times\frac{q\left(X_{t-1}\mid Y_{t}\right)\times q\left(Y_{t}\right)}{q\left(Y_{t}\right)}\\
+ & = & q\left(x_{t}\mid X_{t-1},Y_{t}\right)\times q\left(X_{t-1}\mid Y_{t}\right)\\
+ & = & q\left(x_{t}\mid X_{t-1},Y_{t}\right)\times q\left(X_{t-1}\mid y_{t},Y_{t-1}\right)
+\end{eqnarray*}
+
+\end_inset
+
+Comme les états au passé 
+\begin_inset Formula $\left(X_{t-1}\right)$
+\end_inset
+
+ sont indépendants de l'observation courante 
+\begin_inset Formula $\left(y_{t}\right)$
+\end_inset
+
+, donc 
+\begin_inset Formula $q\left(X_{t-1}\mid y_{t},Y_{t-1}\right)=q\left(X_{t-1}\mid Y_{t-1}\right)$
+\end_inset
+
+.
+ Alors:
+\begin_inset Formula 
+\[
+q\left(X_{t}\mid Y_{t}\right)=q\left(X_{t-1}\mid Y_{t-1}\right)\times q\left(x_{t}\mid X_{t-1},Y_{t}\right)
+\]
+
+\end_inset
+
+En utilisant cette équation, on obtient l'extension
+\shape italic
+ 
+\shape default
+de
+\shape italic
+ 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:poids d'importance IS"
+
+\end_inset
+
+
+\shape default
+\color inherit
+:
+\begin_inset Formula 
+\begin{eqnarray}
+\omega_{t}^{i} & = & \frac{p\left(Y_{t}\mid X_{t}^{i}\right)\times p\left(X_{t}^{i}\right)}{q\left(X_{t}^{i}\mid Y_{t}\right)}=\frac{p\left(Y_{t}\mid X_{t}^{i}\right)\times p\left(X_{t}^{i}\right)}{q\left(X_{t-1}^{i}\mid Y_{t-1}\right)\times q\left(x_{t}^{i}\mid X_{t-1}^{i},Y_{t}\right)}\nonumber \\
+ & = & \frac{\left[p\left(Y_{t-1}\mid X_{t-1}^{i}\right)\times p\left(X_{t-1}^{i}\right)\right]}{q\left(X_{t-1}^{i}\mid Y_{t-1}\right)}\times\frac{p\left(Y_{t}\mid X_{t}^{i}\right)\times p\left(X_{t}^{i}\right)}{\left[p\left(Y_{t-1}\mid X_{t-1}^{i}\right)\times p\left(X_{t-1}^{i}\right)\right]\times q\left(x_{t}^{i}\mid X_{t-1}^{i},Y_{t}\right)}\nonumber \\
+ & = & \omega_{t-1}^{i}\times\frac{p\left(Y_{t}\mid X_{t}^{i}\right)\times p\left(X_{t}^{i}\right)}{p\left(Y_{t-1}\mid X_{t-1}^{i}\right)\times p\left(X_{t-1}^{i}\right)\times q\left(x_{t}^{i}\mid X_{t-1}^{i},Y_{t}\right)}\label{eq:poids d'importance SIS 1}
+\end{eqnarray}
+
+\end_inset
+
+où on peut facilement trouver que le poids d'importance est mise à jour
+ récursivement.
+\end_layout
+
+\begin_layout Standard
+On fait attention à deux densités 
+\begin_inset Formula $p\left(Y_{t}\mid X_{t}^{i}\right)$
+\end_inset
+
+ et 
+\begin_inset Formula $p\left(X_{t}^{i}\right)$
+\end_inset
+
+ du numérateur.
+ Tout d'abord, on décompose 
+\begin_inset Formula $p\left(X_{t}^{i}\right)$
+\end_inset
+
+ en faisant appel à la propriété Markovien 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:hypothèse 1"
+
+\end_inset
+
+
+\color inherit
+ de 
+\begin_inset Formula $\left(X_{t}\right)$
+\end_inset
+
+:
+\begin_inset Formula 
+\begin{equation}
+p(X_{t}^{i})=p(x_{t}^{i},X_{t-1}^{i})=p(x_{t}^{i}\mid X_{t-1}^{i})\times p(X_{t-1}^{i})=p(x_{t}^{i}\mid x_{t-1}^{i})\times p(X_{t-1}^{i})\label{eq:numérateur 1}
+\end{equation}
+
+\end_inset
+
+Par ailleurs, l'extension de la formule de Bayes 
+\begin_inset Formula $p\left(AB\mid C\right)=p\left(A\mid BC\right)\times p\left(B\mid C\right)$
+\end_inset
+
+ nous donne l'expression:
+\begin_inset Formula 
+\[
+p\left(Y_{t}\mid X_{t}^{i}\right)=p\left(y_{t},Y_{t-1}\mid x_{t}^{i},X_{t-1}^{i}\right)=p\left(y_{t}\mid Y_{t-1},x_{t}^{i},X_{t-1}^{i}\right)\times p\left(Y_{t-1}\mid x_{t}^{i},X_{t-1}^{i}\right)
+\]
+
+\end_inset
+
+L'hypothèse 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:hypothèse 2"
+
+\end_inset
+
+
+\color inherit
+ et le fait que des observations au passé 
+\begin_inset Formula $\left(Y_{t-1}\right)$
+\end_inset
+
+ sont indépendantes avec l'état courant 
+\begin_inset Formula $\left(x_{t}\right)$
+\end_inset
+
+ favorisent respectivement des simplifications suivantes:
+\begin_inset Formula 
+\[
+\begin{cases}
+p\left(y_{t}\mid Y_{t-1},x_{t}^{i},X_{t-1}^{i}\right) & =p\left(y_{t}\mid x_{t}^{i}\right)\\
+p\left(Y_{t-1}\mid x_{t}^{i},X_{t-1}^{i}\right) & =p\left(Y_{t-1}\mid X_{t-1}^{i}\right)
+\end{cases}
+\]
+
+\end_inset
+
+Par conséquent:
+\begin_inset Formula 
+\begin{equation}
+p\left(Y_{t}\mid X_{t}^{i}\right)=p\left(y_{t}\mid Y_{t-1},x_{t}^{i},X_{t-1}^{i}\right)\times p\left(Y_{t-1}\mid x_{t}^{i},X_{t-1}^{i}\right)=p\left(y_{t}\mid x_{t}^{i}\right)\times p\left(Y_{t-1}\mid X_{t-1}^{i}\right)\label{eq:numérateur 2}
+\end{equation}
+
+\end_inset
+
+Subtituer 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:numérateur 1"
+
+\end_inset
+
+
+\color inherit
+ et 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:numérateur 2"
+
+\end_inset
+
+
+\color inherit
+ à 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:poids d'importance SIS 1"
+
+\end_inset
+
+
+\color inherit
+, on obtient
+\shape italic
+:
+\begin_inset Formula 
+\begin{eqnarray*}
+\omega_{t}^{i} & = & \omega_{t-1}^{i}\times\frac{p\left(Y_{t}\mid X_{t}^{i}\right)\times p\left(X_{t}^{i}\right)}{p\left(Y_{t-1}\mid X_{t-1}^{i}\right)\times p\left(X_{t-1}^{i}\right)\times q\left(x_{t}^{i}\mid X_{t-1}^{i},Y_{t}\right)}\\
+ & = & \omega_{t-1}^{i}\times\frac{p\left(y_{t}\mid x_{t}^{i}\right)\times p\left(Y_{t-1}\mid X_{t-1}^{i}\right)\times p(x_{t}^{i}\mid x_{t-1}^{i})\times p(X_{t-1}^{i})}{p\left(Y_{t-1}\mid X_{t-1}^{i}\right)\times p\left(X_{t-1}^{i}\right)\times q\left(x_{t}^{i}\mid X_{t-1}^{i},Y_{t}\right)}\\
+ & = & \omega_{t-1}^{i}\times\frac{p\left(y_{t}\mid x_{t}^{i}\right)\times p(x_{t}^{i}\mid x_{t-1}^{i})}{q\left(x_{t}^{i}\mid X_{t-1}^{i},Y_{t}\right)}
+\end{eqnarray*}
+
+\end_inset
+
+
+\shape default
+En outre, on peut reformuler 
+\begin_inset Formula $q\left(x_{t}^{i}\mid X_{t-1}^{i},Y_{t}\right)=q\left(x_{t}^{i}\mid x_{t-1}^{i},y_{t}\right)$
+\end_inset
+
+ en supposant que la loi d'importance
+\shape italic
+ 
+\shape default
+ne dépend que de l'état précédent 
+\begin_inset Formula $\left(x_{t-1}\right)$
+\end_inset
+
+ et de l'observation courante 
+\begin_inset Formula $\left(y_{t}\right)$
+\end_inset
+
+.
+ Une telle supposition est raisonnable et paraît très commun dans le contexte
+ de filtrage.
+ En effet, ce qu'on veut savoir véritablement est une approximation de la
+ loi a posteriori 
+\shape italic
+
+\begin_inset Quotes eld
+\end_inset
+
+marginale
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\begin_inset Formula $p\left(x_{t}\mid Y_{t}\right)$
+\end_inset
+
+ 
+\shape default
+à chaque instant 
+\begin_inset Formula $\left(t\right)$
+\end_inset
+
+.
+ On peut voir dans le chapitre 3, que l'on n'est pas strictement obligé
+ de sauvegarder ni la trajectoire passée 
+\begin_inset Formula $\left\{ X_{t-1}^{i}\right\} _{i=1}^{N_{s}}$
+\end_inset
+
+ ni les observations passées 
+\begin_inset Formula $\left\{ Y_{t-1}\right\} $
+\end_inset
+
+ lors de la programmation.
+ Alors, l'expression de calcul du poids d'importance
+\shape italic
+ 
+\shape default
+est:
+\begin_inset Formula 
+\begin{equation}
+\omega_{t}^{i}=\omega_{t-1}^{i}\times\frac{p\left(y_{t}\mid x_{t}^{i}\right)\times p(x_{t}^{i}\mid x_{t-1}^{i})}{q\left(x_{t}^{i}\mid x_{t-1}^{i},y_{t}\right)}\label{eq:poids d'importance SIS 2}
+\end{equation}
+
+\end_inset
+
+La loi a posteriori
+\shape italic
+ 
+\shape default
+est une modification de 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:loi a posteriori 1"
+
+\end_inset
+
+
+\color inherit
+:
+\begin_inset Formula 
+\begin{equation}
+p\left(x_{t}\mid Y_{t}\right)\approx\sum_{i=1}^{N_{e}}\text{W}_{t}^{i}\times\delta\left(x_{t}-x_{t}^{i}\right)\label{eq:loi a posteriori 2}
+\end{equation}
+
+\end_inset
+
+dans laquelle 
+\begin_inset Formula $\text{W}_{t}^{i}=\frac{\omega_{t}^{i}}{\sum_{i=1}^{N_{s}}\omega_{t}^{i}}$
+\end_inset
+
+ avec 
+\begin_inset Formula $\left(\omega_{t}^{i}\right)$
+\end_inset
+
+ précisé dans l'équation 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:poids d'importance SIS 2"
+
+\end_inset
+
+
+\color inherit
+.
+\end_layout
+
+\begin_layout Standard
+Le niveau de dégradation estimé est donc:
+\begin_inset Formula 
+\[
+x_{MMSE}=\int x_{t}\times p\left(x_{t}\mid Y_{t}\right)dx_{t}\approx\sum_{i=1}^{N_{s}}x_{t}\times\left(\text{W}_{t}^{i}\times\delta\left(x_{t}-x_{t}^{i}\right)\right)\approx\sum_{i=1}^{N_{s}}\text{W}_{t}^{i}\times x_{t}^{i}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Algorithme du SIS filtre particulaire 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:SIS filtre particulaire"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+On est maintenant capable de montrer dans l' 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Algorithme SIS filtre particulaire"
+
+\end_inset
+
+
+\color inherit
+ les composants principaux d'un filtre particulaire SIS.
+ On trouve que c'est un algorithme de type génétique où un ensemble de particule
+s est propagé avec le temps.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+À l'instant 
+\begin_inset Formula $(t=0)$
+\end_inset
+
+
+\begin_inset Newline linebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+Initialisation 
+\begin_inset Formula $\left(i=1:N_{s}\right)$
+\end_inset
+
+
+\begin_inset Newline linebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Générer un ensemble d'échantillons i.i.d selon la loi initiale:
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula $x_{0}^{i}\sim p\left(x_{0}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Assigner les poids d'importances:
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula $\omega_{0}^{i}=\frac{1}{N_{s}}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+---------------------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+À partir de l'instant 
+\begin_inset Formula $\left(t\geq1\right)$
+\end_inset
+
+ , sachant que l'on dispose un ensemble de particules 
+\begin_inset Formula $\left\{ x_{t-1}^{i},\omega_{t-1}^{i}\right\} _{i=1}^{N_{s}}$
+\end_inset
+
+
+\begin_inset Newline linebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+Échantillonnage d'importance
+\begin_inset Newline linebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Générer un nouvel ensemble des échantillons selon la loi d'importance:
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula $x_{t}^{i}\sim q\left(x_{t}^{i}\mid x_{t-1}^{i},y_{t}\right),\, i=1:N_{s}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Déterminer la fonction de vraisemblance 
+\begin_inset Formula $p\left(y_{t}\mid x_{t}^{i}\right)$
+\end_inset
+
+ et le noyau de transition 
+\begin_inset Formula $p\left(x_{t}^{i}\mid x_{t-1}^{i}\right)$
+\end_inset
+
+, puis calculer les poids d'importances
+\shape italic
+ 
+\shape default
+selon la formule 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:poids d'importance SIS 2"
+
+\end_inset
+
+
+\color inherit
+.
+\begin_inset Newline linebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+Normaliser
+\begin_inset Newline linebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula $W_{t}^{i}=\frac{\omega_{t}^{i}}{\sum_{i=1}^{N_{s}}\omega_{t}^{i}},\text{ }i=1:N_{s}$
+\end_inset
+
+
+\begin_inset Newline linebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+Estimer le niveau de dégradation
+\begin_inset Newline linebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula $x_{MMSE}\approx\sum_{i=1}^{N_{s}}W_{t}^{i}\times x_{t}^{i}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:Algorithme SIS filtre particulaire"
+
+\end_inset
+
+Algorithme du SIS filtre particulaire
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+L'avantage du filtre particulaire est qu'il n'existe aucune restriction
+ de la forme de deux fonctions 
+\begin_inset Formula $f\left(.\right)$
+\end_inset
+
+ et 
+\begin_inset Formula $h\left(.\right)$
+\end_inset
+
+ (linéaire ou non linéaire) ainsi que le type de bruit 
+\begin_inset Formula $\left(v{}_{t}\right)$
+\end_inset
+
+ et 
+\begin_inset Formula $\left(\varepsilon{}_{t}\right)$
+\end_inset
+
+ (Gaussien ou non Gaussien) dans le modèle d'espace d'état 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:Modèle général"
+
+\end_inset
+
+
+\color inherit
+.
+ Pour mettre en oeuvre l'algorithme décrit ci dessus, il est nécessaire
+ de savoir:
+\end_layout
+
+\begin_layout Itemize
+simuler selon la loi intiale 
+\begin_inset Formula $p\left(x_{0}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+simuler selon la loi d'importance 
+\begin_inset Formula $q\left(x_{t}\mid x_{t-1},y_{t}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+calculer la vraisemblance 
+\begin_inset Formula $p\left(y_{t}\mid x_{t}\right)$
+\end_inset
+
+ pour tout 
+\begin_inset Formula $\left(x_{t}\right)$
+\end_inset
+
+ à l'acquisiton de 
+\begin_inset Formula $\left(y_{t}\right)$
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

@@ -1,0 +1,584 @@
+
+\chapter{Simulation en Matlab du SIS filtre particulaire }
+
+Le troisième chapitre présente dans un premier temps le modèle de
+dégradation utilisé. Puis, l'implémentation Matlab du SIS filtre particulaire
+est donnée sous forme d'un tutoriel. Au cours de ce tutoriel, le principe
+ainsi que des problèmes concernant le filtre sont clarifiés. Finalement,
+une comparaison de l'effet du SIS filtre particulaire sur deux processus
+Gamma de l'incréments différents est étudiée.
+
+\section{Processus Gamma}
+
+Dans notre cas d'étude, la dégradation du système est modélisée par
+un processus Gamma alors que le bruit de mesure est supposé de type
+Gaussien additif de moyenne nulle. Alors, le modèle d'espace d'état
+prend la forme suivante:
+\begin{equation}
+\begin{cases}
+x_{t}=x_{t-1}+v_{t}\\
+y_{t}=x_{t}+\varepsilon_{t}
+\end{cases}avec\;\begin{cases}
+v_{t}\sim\Gamma\left(k,\theta\right)\\
+\varepsilon_{t}\sim N\left(0,\sigma_{\varepsilon}^{2}\right)
+\end{cases}\label{eq:processus Gamma}
+\end{equation}
+
+$\left(v_{t}\right)$ est une variable aléatoire réprésent l'incrément
+du processus Gamma, donc dans l'équation d'état il joue le rôle du
+bruit de processus.
+
+$\left(k\right)$ est le paramètre de forme, $\left(\theta\right)$
+est le paramètre d'intensité de la distribution Gamma.
+
+$\left(\sigma_{\varepsilon}\right)$ est l'écart-type de la distribution
+Normale.
+
+Le problème est d'estimer le niveau de dégradation (caché) $\left(x_{t}\right)$
+grâce aux observations $\left(Y_{t}\right)$ en supposant que le modèle
+\textcolor{blue}{\ref{eq:processus Gamma}} est connu.
+
+\section{Loi d'importance populaire \label{sec:Loi-d'importance} }
+
+Choisir la loi d'importance\textit{ }est l'étape fondamentale lorsque
+l'on veut mettre en application un filtre particulaire. En général,
+effectuer le choix comme suit:
+\[
+q\left(x_{t}\mid x_{t-1},y_{t}\right)=p\left(x_{t}\mid x_{t-1}\right)
+\]
+permet de mettre à jour simplement le poids d'importance grâce à la
+fonction de vraisemblance:
+\begin{equation}
+\omega_{t}^{i}=\omega_{t-1}^{i}\times\frac{p\left(y_{t}\mid x_{t}^{i}\right)\times p(x_{t}^{i}\mid x_{t-1}^{i})}{q\left(x_{t}^{i}\mid x_{t-1}^{i},y_{t}\right)}=\omega_{t-1}^{i}\times p\left(y_{t}\mid x_{t}^{i}\right)\label{eq:calcul poids d'importance}
+\end{equation}
+La manière de choisir la loi d'importance\textit{ }correspond identiquement
+au noyau de transition\textit{ }paraît comme le plus populaire. C'est
+aussi la loi d'importance qu'on utilise désormais dans ce rapport.
+Le point positif de cette approche est qu'elle facilite le calcul
+récursif du poids d'importance\textit{.} Pourtant, le fait que la
+loi d'importance ne tient pas compte des observations, en particulier
+celle la plus récente $\left(y_{t}\right)$, va causer un filtre sensible
+avec horsains. Plus l'observation est bruitée, plus le SIS filtre
+particulaire exprime une pauvre qualité. De toute façon, il est nécessaire
+de remarquer que l'on dispose d'autres solutions plus sophistiquées
+dans le choix de la loi d'importance\textit{. }Celle que l'on prend
+ci dessus est la plus simple pour l'étude d'un filtre particulaire.
+
+\section{Implémentation Matlab}
+
+\subsection{Création des valeurs de mesures $\left(Y_{t}\right)$}
+
+D'abord on génère une suite de variables aléatoires $\left(x_{t}\right)_{t>0}$
+représentant le niveau de dégradation réel en utilisant le noyau de
+transition. Puis, à chaque instant $\left(t\right)$, $\left(x_{t}\right)$
+est additionné d'un bruit Gaussien pour donner une valeur de mesure
+correspondante. En pratique, le filtre particulaire va re-estimer
+l'état $\left(x_{t}\right)$ (caché) en basant sur ces valeurs de
+mesures. Le programme Matlab qui réalise la création de $\left(Y_{t}\right)$
+est montré ci-dessous:
+
+\noindent\fbox{\begin{minipage}[t]{1\columnwidth - 2\fboxsep - 2\fboxrule}%
+T = 500;$\;$\textcolor{green}{\% L'instant final}
+
+\textbf{\textcolor{green}{\%\% À chaque instant, on fait ...}}
+
+\textcolor{blue}{for} t = 1:T
+
+$\;\;$\textcolor{green}{\% Mise à jour le niveau de dégradation accumulé}
+
+$\;\;$x = x + gamrnd (a,b);
+
+$\;\;$\textcolor{green}{\% Créer la valeur de mesure correspondante}
+
+$\;\;$y = x + dev\_noise{*}randn;
+
+\textcolor{blue}{end}%
+\end{minipage}}
+
+Note que:
+\begin{labeling}{00.00.0000}
+\item [{-}] \textcolor{red}{$gamrnd(a,b)$} génère une variable aléatoire
+selon la loi $\Gamma\left(k,\theta\right)$
+\item [{-}] \textcolor{red}{$dev\text{\_}noise$ }\textcolor{black}{représente
+l'écart-type }$\left(\sigma_{\varepsilon}\right)$ du bruit de mesure
+\item [{-}] \textcolor{red}{$dev\text{\_}noise${*}randn }génère une variable
+aléatoire selon la loi $N\left(0,\sigma_{\varepsilon}^{2}\right)$
+\end{labeling}
+
+\subsection{Étape d'initialisation}
+
+À l'instant $\left(t=0\right)$, on doit initialiser le filtre, c'est-à-dire
+générer selon la loi initiale $p\left(x_{0}\right)$ un ensemble d'échantillons
+indépendants $\left\{ x_{0}^{i}\right\} _{i=1}^{N_{s}}$ associés
+d'un même valeur de poids d'importance $\omega_{0}^{i}=\frac{1}{N_{s}}$.
+Quand le temps passe, ces particules $\left\{ x_{0}^{i},\omega_{0}^{i}\right\} _{i=1}^{N_{s}}$
+vont s'évoluer indépendamment. Et les poids $\left\{ \omega_{t}^{i}\right\} _{i=1}^{N_{s}}$
+se diffèrent, ce qui mettre en évidence ``l'importance'' d'un échantillon
+par rapport aux autres. Après quelques itérations $\left(t\right)$,
+on constate que le grand écart entre ``l'importance'' des échantillons
+cause une estimation fragile de l'état de dégradation. Ce phénomène
+qu'on appelle \textit{dégénérescence de poids} sera étudié après.
+
+Supposer que au début le système est neuf $\left(x_{0}=0\right)$
+et on ne fait aucune observation, donc $\left(y_{0}\right)$ n'existe
+pas. Supposer aussi que la loi intiale est la loi Normale $p\left(x_{0}\right)=N\left(0,\sigma_{0}^{2}\right)$.
+L'étape d'initialisation est montrée dans le tableau suivant:
+
+\noindent\fbox{\begin{minipage}[t]{1\columnwidth - 2\fboxsep - 2\fboxrule}%
+\textbf{\textcolor{green}{\%\% Initialiser le filtre particulaire}}
+
+x = 0;$\;$\textcolor{green}{\% L'état initial}
+
+x\_P = zeros(1,Ns);$\;$\textcolor{green}{\% L'ensemble des échantillons
+représentant l'état de dégradation}
+
+P\_w = zeros(1,Ns);$\;$\textcolor{green}{\% Les poids d'importances
+associés à des échantillons}
+
+\textbf{\textcolor{green}{\% Simuler selon la loi initiale}}
+
+\textcolor{blue}{for} i = 1:Ns
+
+$\;\;$x\_P(i) = x + dev\_init\_sample{*}randn;
+
+$\;\;$P\_w(i) = 1/Ns;
+
+\textcolor{blue}{end}%
+\end{minipage}}
+
+Note que:
+\begin{labeling}{00.00.0000}
+\item [{-}] \textit{\textcolor{red}{dev\_init\_sample }}représente l'écart-type
+$\left(\sigma_{0}\right)$ de la loi initiale
+\item [{-}] \textit{\textcolor{red}{dev\_init\_sample{*}randn }}génère
+une variable aléatoire selon la loi $N\left(0,\sigma_{\varepsilon}^{2}\right)$
+\end{labeling}
+On dispose maintenant un ensemble des particules $\left\{ x_{0}^{i},P_{-}\text{w}{}_{0}^{i}\right\} _{i=1}^{N_{s}}$
+qui représentent l'état initial. Ces particules caractérisent la loi
+a priori\textit{ }sous le point vue de l'estimation Bayésienne. À
+l'acquisition de la valeur de mesure $\left(y_{1}\right)$, le filtre
+particulaire se mettre en marche. Le corps du filtre constitue deux
+phases qui servent à générer les échantillons selon la loi d'importance,
+puis les pondérer (mettre à jour leurs poids d'importances) pour former
+un nouvel ensemble $\left\{ x_{-}P_{-}update_{1}^{i},P_{-}\text{w}{}_{1}^{i}\right\} _{i=1}^{N_{s}}$,
+qui approche la loi a posteriori $p\left(x_{1}\mid y_{1}\right)$.\textit{ }
+
+\subsection{Étape de prédiction}
+
+Car le noyau de transition est choisi comme la loi d'importance, donc
+la première phase, prédiction (échantillonnge) consiste à muter les
+échantillons à l'aide de ce noyau\textit{. }On obtient un nouvel ensemble
+d'échantillons indépendants $\left\{ x_{-}P_{-}update_{1}^{i}\right\} _{i=1}^{N_{s}}$.
+
+\noindent\fbox{\begin{minipage}[t]{1\columnwidth - 2\fboxsep - 2\fboxrule}%
+T = 500;$\;$\textcolor{green}{\% L'instant final}
+
+\textbf{\textcolor{green}{\%\% À chaque instant, on fait ...}}
+
+\textcolor{blue}{for} t = 1:T
+
+\textbf{\textcolor{green}{$\;\;$\% Initialiser le filtre particulaire}}
+
+\textbf{\textcolor{green}{$\;\;$}}\textcolor{green}{\% ...}
+
+\textbf{\textcolor{green}{$\;\;$\% Le corps du filtre particulaire}}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$}}\textcolor{green}{\% Chaque
+particule s'évolue indépendamment}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$}}\textcolor{blue}{for} i
+= 1:Ns
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$$\;\;$\% Phase de prédiction}}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$$\;\;$}}\textcolor{green}{\%
+Muter l'échantillon à l'aide du noyau de transition}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$$\;\;$}}\textcolor{black}{x\_P\_update(i)
+= x\_P(i)} + gamrnd (a,b);
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$$\;\;$\% Phase de correction }}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$$\;\;$}}\textcolor{green}{\%
+...}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$}}\textcolor{blue}{end}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$}}\textcolor{green}{\% ...}
+
+\textcolor{blue}{end}%
+\end{minipage}}
+
+\subsection{Étape de correction et d'estimation}
+
+Lorsque la première valeur de mesure $\left(y_{1}\right)$ est disponible,
+on évalue la vraisemblance de chaque échantillon $\left(x_{-}P_{-}update_{1}^{i},i=1:N_{s}\right)$
+et calcule le poids correspondant à chacun selon la formule \textcolor{blue}{\eqref{eq:calcul poids d'importance}}.
+Le poids quantifie l'adéquation de chaque échantillon par rapport
+à l'observation courante. L'échantillon qui offre une valeur (trouvée
+grâce à l'équation d'observation) plus proche de $\left(y_{1}\right)$
+va être assigné un poids plus signifiant. Pour effectuer un tel calcul,
+on doit tout d'abord déterminer la fonction de vraisemblance $p\left(y_{1}\mid x_{1}\right)$.
+Grâce à l'équation d'observation du modèle \textcolor{blue}{\eqref{eq:processus Gamma}},
+on trouve facilement que la fonction de vraisemblance\textit{ }correspond
+à la loi $N\left(x_{t},\sigma_{\varepsilon}^{2}\right)$. Donc:
+\[
+p\left(y_{1}\mid x_{1}^{i}\right)=\frac{1}{\sigma_{\varepsilon}\sqrt{2\pi}}\times exp\left(-\frac{\left(x_{1}^{i}-y_{1}\right)^{2}}{2\sigma_{\varepsilon}^{2}}\right)
+\]
+Enfin, les travaux restent à normaliser les poids d'importances $\text{W}_{t}^{i}=\frac{\omega_{t}^{i}}{\sum_{i=1}^{N_{s}}\omega_{t}^{i}}$
+afin d'obtenir un ensemble de particules $\left\{ x_{-}P_{-}update_{1}^{i},P_{-}\text{w}{}_{1}^{i}\right\} _{i=1}^{N_{s}}$
+et puis à estimer le niveau de dégradation $x_{MMSE}\approx\sum_{i=1}^{N_{s}}\text{W}_{t}^{i}\times x_{t}^{i}$.
+
+\noindent\fbox{\begin{minipage}[t]{1\columnwidth - 2\fboxsep - 2\fboxrule}%
+T = 500;$\;$\textcolor{green}{\% L'instant final}
+
+\textbf{\textcolor{green}{\%\% À chaque instant, on fait ...}}
+
+\textcolor{blue}{for} t = 1:T
+
+\textbf{\textcolor{green}{$\;\;$}}\textcolor{green}{\% ...}
+
+\textbf{\textcolor{green}{$\;\;$\% Le corps du filtre particulaire}}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$}}\textcolor{green}{\% Chaque
+particule s'évolue indépendamment}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$}}\textcolor{blue}{for} i
+= 1:Ns
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$$\;\;$\% Phase de prédiction}}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$$\;\;$}}\textcolor{green}{\%
+...}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$$\;\;$\% Phase de correction }}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$$\;\;$}}\textcolor{black}{y\_update(i)
+= x\_P\_update(i);}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$$\;\;$}}\textcolor{black}{P\_w(i)
+= P\_w(i) {*}(1/(dev\_noise{*}sqrt(2{*}pi))){*}exp(-(y\_update(i)-y)\textasciicircum 2/(2{*}dev\_noise\textasciicircum 2));}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$}}\textcolor{blue}{end}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$\%}}\textcolor{green}{{} }\textbf{\textcolor{green}{Normaliser
+les poids d'importances}}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$}}\textcolor{black}{P\_w =
+P\_w./sum(P\_w);}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$\%}}\textcolor{green}{{} }\textbf{\textcolor{green}{Estimer
+le niveau de dégradation}}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$}}\textcolor{blue}{for} i
+= 1:Ns
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$$\;\;$}}\textcolor{black}{x\_estimate
+= x\_estimate + P\_w(i){*}x\_P\_update(i);}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$}}\textcolor{blue}{end}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$\%}}\textcolor{green}{{} }\textbf{\textcolor{green}{Propager
+les échantillons à l'instant suivant}}
+
+\textbf{\textcolor{green}{$\;\;$$\;\;$}}\textcolor{black}{x\_P =
+x\_P\_update;}
+
+\textcolor{blue}{end}%
+\end{minipage}}
+
+L'instruction\textcolor{red}{{} $y_{-}update(i)=x_{-}P_{-}update(i)$
+}\textcolor{black}{fait référence à l'équation d'observation}\textcolor{red}{{}
+$y_{t}=x_{t}+\varepsilon$}\textcolor{black}{. Pour notre problème,
+heureusement cette équation est simple. Mais pour les autres cas,
+par exemple les autres techniques de mesures, elle peut être non linéaire.
+Donc au lieu d'utiliser directement }$x_{-}P_{-}update(i)$ dans le
+calcul des poids d'importances, on ajoute l'instruction ci-dessus
+pour démontrer l'algorithme générale du SIS filtre particulaire. A
+la fin du cycle, les échantillons $\left\{ x_{-}P_{-}update_{1}^{i}\right\} _{i=1}^{N_{s}}$
+doivent être propagés à l'instant $\left(t=2\right)$ pour caractériser
+la loi a priori\textit{ }$p\left(x_{2}\mid y_{1}\right)$.
+
+Lors de la programmation, on est capable de sauvegarder les données
+concernant la propagation des particules, i.e $\left\{ x_{-}P{}_{t}^{i}\right\} _{i=1}^{N_{s}}$,
+$\left\{ x_{-}P_{-}update_{t}^{i}\right\} _{i=1}^{N_{s}}$, $\left\{ P_{-}\text{w}{}_{t}^{i}\right\} _{i=1}^{N_{s}}$
+pour l'investigation si nécessaire.
+
+\section{Principe du SIS filtre particulaire}
+
+Maintenant on effectue la simulation pour visualiser les démarches
+du SIS filtre particulaire .
+
+\begin{figure}
+\begin{centering}
+\includegraphics[scale=0.75]{\string"Figures/Loi initial\string".eps}
+\par\end{centering}
+\caption{\label{fig:Loi a priori}Loi a priori}
+\end{figure}
+
+La figure \textcolor{red}{\ref{fig:Loi a priori}} montre la répartition
+des échantillons selon la loi a priori\textit{ }$p\left(x_{0}\right)$.
+Une cinquantaine d'échantillons sont distribués aléatoirement selon
+la loi $N\left(0,\sigma_{0}^{2}\right)$ avec $\sigma_{0}=4$. On
+peut voir dans la première image qu'il y a des ``bons'' échantillons
+qui se localisent près de l'état réel $\left(x_{0}=0\right)$ ainsi
+que des ``mauvais'' échantillons qui sont très distants de $\left(x_{0}\right)$.
+La densité de probabilité de la distribution des échantillons est
+dessiné dans le troisième image.
+
+\begin{figure}
+\begin{centering}
+\includegraphics[scale=0.5]{\string"Figures/Timestep 4\string".eps}
+\par\end{centering}
+\caption{\label{fig:Instant t=00003D4}Évolution des particules à l'instant
+$\left(t=4\right)$}
+\end{figure}
+
+La figure \textcolor{red}{\ref{fig:Instant t=00003D4}} nous fait
+savoir ce qui se passe à l'instant $\left(t=4\right)$. La première
+image démontre la pondération des échantillons. La deuxième image
+illustre la phase de prédiction: chaque échantillon $\left(x_{-}P_{4}^{i}\equiv x_{-}P_{-}update_{3}^{i},i=1:N_{s}\right)$
+est muté vers sa nouvelle position $\left(x_{-}P_{-}update_{4}^{i},i=1:N_{s}\right)$.
+L'ensemble de particules est montré dans le troisième image. La quatrième
+image localise en même temps l'état estimé $\left(x_{-}estimate_{4}\right)$
+et l'état réel $\left(x_{4}\right)$.
+
+On peut apercevoir qu'à l'instant $\left(t=4\right)$, le niveau de
+dégradation réel atteint évidemment une valeur positive tandis que
+la valeur de mesure $\left(y_{4}\right)$ donne une valeur négative
+à cause du bruit de mesure. À cet instant, comme le filtre vient de
+démarrer, on peut voir dans la première image que la plupart des échantillons
+$\left(x_{-}P_{-}update_{4}^{i},i=1:N_{s}\right)$ qui offrent une
+valeur $\left(y_{-}update_{4}^{i},i=1:N_{s}\right)$ proche de $\left(y_{4}\right)$
+vont être assignés des poids forts. Pourtant, il existe des cas exceptionnels.
+En effet, on trouve que certains échantillons prennent un poids plus
+fort même si ils sont des ``mauvais'' échantillons, autrement dit
+ils se trouvent plus distants de l'état réel que quelques autres échantillons.
+Et puisque l'état estimé est la somme pondérée des échantillons, ces
+``mauvais'' échantillons contribuent plus significativement à l'estimation
+de l'état réel (caché) que quelques ``bons'' échantillons. Cela
+engendre le décalage entre l'état estimé et l'état réel. Comme on
+a mentionné précédemment, l'origine de ce défaut est le choix de la
+loi d'importance correspondant au noyau de transition, sans tenant
+compte de l'observation.
+
+La raison de l'assignation inappropriée des poids d'importances\textit{
+}est la mise à jour par récurrence selon la formule \textcolor{blue}{\eqref{eq:calcul poids d'importance}}
+($\omega_{t}$ en fonction de $\omega_{t-1}$ et ainsi de suite) pendant
+que un échantillon ayant un poids fort à l'instant $\left(t=1\right)$
+peut être probablement assigné un poids beaucoup plus faible à l'instant
+$\left(t=2\,\,ou\,\,3\right)$. Ce phénomène est observable dans la
+troisième image.
+
+De plus, comme les poids d'importances\textit{ }sont normalisés à
+chaque itération (donc $P_{-}\text{W}_{t}^{i}<1$), la tendance est
+que le nombre d'échantillons dont le poids est significativement supérieur
+à zéro diminue. Après quelques itérations, tous les poids sont presque
+nuls sauf un. Cela entraîne le fait que l'approximation de la loi
+a posteriori\textit{ }dépend presque tout à fait du seul échantillon
+ayant le poids non négligeable. Une fois que cet échantillon n'approche
+pas l'état réel, on n'arrive pas à obtenir une estimation efficace.
+On appelle un tel problème sous le terme dégénérescence de poids.
+La figure \textcolor{red}{\ref{fig:Probl=0000E8me-de-d=0000E9g=0000E9n=0000E9rescence}}
+permet de visualiser ce problème.
+
+\begin{figure}
+\subfloat[$\left(t=16\right)$ et $\left(t=43\right)$]{\begin{centering}
+\includegraphics[scale=0.45]{Figures/Timestep16}\includegraphics[scale=0.45]{Figures/Timestep43}
+\par\end{centering}
+}
+
+\subfloat[$\left(t=71\right)$ et $\left(t=108\right)$]{\begin{centering}
+\includegraphics[scale=0.47]{Figures/Timestep71}\includegraphics[scale=0.47]{Figures/Timestep108}
+\par\end{centering}
+}\caption{\label{fig:Probl=0000E8me-de-d=0000E9g=0000E9n=0000E9rescence}Problème
+de dégénérescence de poids}
+\end{figure}
+
+On constate que la variance des poids d'importances\textit{ }tend
+à augmenter après chaque itération, la dégénérescence de poids est
+inévitable et cause une mauvais approximation de la loi a posteriori\textit{
+}et donc une estimation fragile du niveau de dégradation\textit{.
+}De plus, ce problème implique que la plupart des ressources du centre
+de calcul est affecté à propager les particules peu intéressantes.
+
+\begin{figure}
+\begin{centering}
+\includegraphics[scale=0.7]{Figures/Trajectoire}
+\par\end{centering}
+\caption{\label{fig:Trajectoire de l'=0000E9tat estim=0000E9}Trajectoire de
+l'état estimé}
+\end{figure}
+
+La figure \textcolor{red}{\ref{fig:Trajectoire de l'=0000E9tat estim=0000E9}}
+montre la trajectoire de l'état estimé obtenu après 100 premières
+itérations. Les valeurs caractérisant l'évolution de 6 premières particules
+sont enregistrées dans le tableau \textcolor{red}{\ref{tab:=0000C9volutions des particules}}.
+
+\begin{table}
+\subfloat[Position des échantillons]{\begin{centering}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline 
+\multirow{2}{*}{$i$} & $\left(t=0\right)$ & \multicolumn{2}{c|}{$\left(t=1\right)$} & \multicolumn{2}{c|}{$\left(t=2\right)$} & \multicolumn{2}{c|}{$\left(t=3\right)$}\tabularnewline
+\cline{2-8} \cline{3-8} \cline{4-8} \cline{5-8} \cline{6-8} \cline{7-8} \cline{8-8} 
+ & $x_{\text{­}}P{}_{0}^{i}\equiv x_{-}P_{1}^{i}$ & $x_{-}P_{-}update{}_{1}^{i}$ & $x_{\text{­}}P{}_{2}^{i}$ & $x_{-}P_{-}update{}_{2}^{i}$ & $x_{\text{­}}P{}_{3}^{i}$ & $x_{-}P_{-}update{}_{3}^{i}$ & $\ldots$\tabularnewline
+\hline 
+1 & -0.5785 & \textcolor{blue}{-0.4927} & \textcolor{blue}{-0.4927} & \textcolor{red}{0.6983} & \textcolor{red}{0.6983} & 1.4469 & $\ldots$\tabularnewline
+\hline 
+2 & -0.7938 & \textcolor{blue}{1.1958} & \textcolor{blue}{1.1958} & \textcolor{red}{1.2958} & \textcolor{red}{1.2958} & 1.8700 & $\ldots$\tabularnewline
+\hline 
+3 & -1.2378 & \textcolor{blue}{-1.2223} & \textcolor{blue}{-1.2223} & \textcolor{red}{-0.6981} & \textcolor{red}{-0.6981} & -0.4150 & $\ldots$\tabularnewline
+\hline 
+4 & 9.0948 & \textcolor{blue}{9.3925} & \textcolor{blue}{9.3925} & \textcolor{red}{9.6794} & \textcolor{red}{9.6794} & 9.8049 & $\ldots$\tabularnewline
+\hline 
+5 & -6.7253 & \textcolor{blue}{-6.5783} & \textcolor{blue}{-6.5783} & \textcolor{red}{-5.9894} & \textcolor{red}{-5.9894} & -5.5064 & $\ldots$\tabularnewline
+\hline 
+6 & 0.9647 & \textcolor{blue}{1.2471} & \textcolor{blue}{1.2471} & \textcolor{red}{1.6316} & \textcolor{red}{1.6316} & 1.9371 & $\ldots$\tabularnewline
+\hline 
+$\ldots$ & $\ldots$ & $\ldots$ & $\ldots$ & $\ldots$ & $\ldots$ & $\ldots$ & $\ldots$\tabularnewline
+\hline 
+\end{tabular}
+\par\end{centering}
+}
+
+\subfloat[Poids associés à chaque échantillon]{\begin{centering}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+\hline 
+$i$ & $\left(t=0\right)$ & $\left(t=1\right)$ & $\left(t=2\right)$ & $\ldots$ & $\left(t=77\right)$ & $\left(t=78\right)$ & $\ldots$ & $\left(t=155\right)$ & $\left(t=156\right)$ & $\ldots$\tabularnewline
+\hline 
+1 & 0.02 & 0.024931 & 0.021084 & $\ldots$ & \textcolor{red}{0.027794} & \textcolor{red}{0.025749} & $\ldots$ & 2.26E-10 & 2.07E-10 & $\ldots$\tabularnewline
+\hline 
+2 & 0.02 & 0.024488 & 0.017501 & $\ldots$ & 9.56E-40 & 6.78E-40 & $\ldots$ & 3.06E-40 & 3.09E-40 & $\ldots$\tabularnewline
+\hline 
+3 & 0.02 & 0.024253 & 0.028749 & $\ldots$ & 1.19E-07 & 1.42E-07 & $\ldots$ & 1.75E-09 & 1.47E-09 & $\ldots$\tabularnewline
+\hline 
+4 & 0.02 & 0.004440 & 6.64E-05 & $\ldots$ & 3.47E-44 & 3.97E-44 & $\ldots$ & 3.60E-71 & 1.13E-71 & $\ldots$\tabularnewline
+\hline 
+5 & 0.02 & 0.010324 & 0.021677 & $\ldots$ & \textcolor{red}{0.007096} & \textcolor{red}{0.007282} & $\ldots$ & 2.71E-63 & 6.20E-64 & $\ldots$\tabularnewline
+\hline 
+6 & 0.02 & 0.024431 & 0.015785 & $\ldots$ & 0.000803 & 0.000994 & $\ldots$ & \textcolor{red}{0.998909} & \textcolor{red}{0.999447} & $\ldots$\tabularnewline
+\hline 
+$\ldots$ & $\ldots$ & $\ldots$ & $\ldots$ & $\ldots$ & $\ldots$ & $\ldots$ & $\ldots$ & $\ldots$ & $\ldots$ & $\ldots$\tabularnewline
+\hline 
+\end{tabular}
+\par\end{centering}
+}
+
+\caption{\label{tab:=0000C9volutions des particules}Évolutions de 6 premières
+particules}
+\end{table}
+
+Au début, tous les échantillons $\left\{ x_{0}^{i}\right\} _{i=1}^{N_{s}}$
+sont assignés un même valeur de poids d'importance $\omega_{0}^{i}=\frac{1}{N_{s}}$.
+Quand le filtre démarre, les particules sont propagés indépendamment.
+Après 155 itérations, on constate qu'il ne reste qu'un seul échantillon
+qui prend le poids approximativement à 1, alors que les poids des
+autres échantillons sont négligeables. On note aussi que un échantillon
+peut prendre le rôle le plus ``important'' durant quelques itérations
+avant de dégénérer. 
+
+\section{Distribution des états estimés}
+
+Dans cette section, on étudie l'effet du SIS filtre particulaire sur
+deux processus Gamma de l'incrément différents:$\Gamma\left(k_{1},\theta_{1}\right)$
+avec $\left(k_{1}=1;\theta_{1}=\frac{2}{3}\right)$ et $\Gamma\left(k_{2},\theta_{2}\right)$
+avec $\left(k_{2}=\frac{1}{9},\theta_{2}=6\right)$. On peut observer
+la densité de probabilité de ces deux distributions Gamma dans la
+figure \textcolor{red}{\ref{fig:Densit=0000E9-de-probabilit=0000E9}}:
+
+\begin{figure}
+\subfloat[$\Gamma\left(k1,\theta1\right)$ avec $\left(k_{1}=1;\theta_{1}=\frac{2}{3}\right)$ ]{\begin{centering}
+\includegraphics[scale=0.6]{Figures/a=1,b=1\lyxdot 5}
+\par\end{centering}
+}\subfloat[$\Gamma\left(k_{2},\theta_{2}\right)$ avec $\left(k_{2}=\frac{1}{9},\theta_{2}=6\right)$]{\begin{centering}
+\includegraphics[scale=0.6]{\string"Figures/a = 1s9, b =1s6\string".eps}
+\par\end{centering}
+}\caption{\label{fig:Densit=0000E9-de-probabilit=0000E9}Densité de probabilité
+de la distribution Gamma}
+\end{figure}
+
+Ces deux distributions Gamma ont le même moyenne alors que la variance
+de $\Gamma\left(k_{2},\theta_{2}\right)$ est 9 fois plus grande que
+celle de $\Gamma\left(k_{1},\theta_{1}\right)$:
+\[
+\begin{cases}
+moyenne & =k_{1}\times\theta_{1}=k_{2}\times\theta_{2}=\frac{2}{3}\\
+variance1 & =k_{1}\times\theta_{1}{}^{2}=1\times\left(\frac{2}{3}\right)^{2}=\frac{4}{9}\\
+variance2 & =k_{2}\times\theta_{2}{}^{2}=\frac{1}{9}\times\left(6\right)^{2}=4
+\end{cases}
+\]
+
+La figure \textcolor{red}{\ref{fig:Erreur-de-l'estimation}} montre
+l'erreur de l'estimation $\left(d_{t}=\left(x_{MMSE}\right)_{t}-x_{t}\right)$
+à chaque l'instant $\left(t\right)$ dans les deux cas $\Gamma\left(k_{1},\theta_{1}\right)$
+et $\Gamma\left(k_{2},\theta_{2}\right)$ avec un bruit Gaussien de
+moyenne nulle, l'écart-type $\sigma_{\varepsilon}=5$. On trouve que
+avec une même valeur de la variance $\left(\sigma_{\varepsilon}^{2}\right)$
+du bruit de mesure, si l'incrément du processus Gamma est plus incertain,
+la performance du filtre particulaire SIS décroît fortement. La raison
+est que quand on a un plus grand degré de variabilité sur la trajectoire
+de l'état de dégradation réel $\left(x_{t}\right)$, les valeurs $\left\{ x_{-}P_{-}update_{t}^{i}\right\} _{i=1}^{N_{s}}$
+et donc, $\left\{ y_{-}update_{t}^{i}\right\} _{i=1}^{N_{s}}$ se
+dispersent davantage. Par conséquent, les poids d'importances\textit{
+}associés à ces échantillons sont gravement écartés. Cela conduit
+à une accélération du problème de dégénérescence de poids.
+
+\begin{figure}
+\begin{centering}
+\includegraphics[scale=0.7]{\string"Figures/Estimation Error\string".eps}
+\par\end{centering}
+\caption{\label{fig:Erreur-de-l'estimation}Erreur de l'estimation}
+\end{figure}
+
+Pour visualiser la vitesse de dégénérescence de poids, on utilise
+l'estimateur Maximum a Posteriori $\left(x_{MAP}\right)$:
+\[
+\left(x_{MAP}\right)_{t}=x_{t}^{i}\mid\text{W}_{t}^{i}=max\left\{ \text{W}_{t}^{i}\right\} _{i=1}^{N_{s}}
+\]
+Cet estimateur désigne à chaque instant $\left(t\right)$ l'échantillon
+$\left(x_{t}^{i}\right)$ ayant le poids le plus fort, autrement dit
+l'échantillon le plus ``important'' au sens de la contribution à
+l'estimation de l'état réel. Lorsqu'il ne reste qu'un seul échantillon
+intéressant, $\left(x_{MAP}\right)$ et $\left(x_{MMSE}\right)$ est
+presque identique. La figure \textcolor{red}{\ref{fig:Vitesse-de-d=0000E9g=0000E9n=0000E9rescence}}
+illustre cette idée.
+
+\begin{center}
+\begin{figure}
+\begin{centering}
+\includegraphics[scale=0.4]{\string"Figures/Vitesse de dégénérescence\string".eps}
+\par\end{centering}
+\caption{\label{fig:Vitesse-de-d=0000E9g=0000E9n=0000E9rescence}Vitesse de
+dégénérescence de poids }
+\end{figure}
+\par\end{center}
+
+On peut trouver clairement que dans le cas d'un processus Gamma avec
+la variance de l'incrément plus élevée, les poids dégénèrent plus
+rapide. Cela diminue considérablement la qualité du filtre particulaire
+SIS.
+
+Chaque fois on fait la simulation avec la même donnée de mesure, on
+obtient une trajectoire de l'état estimé tout à fait différente. Donc,
+pour étudier la distribution des états estimés à tous les instants,
+on répète par exemple 300 fois la procédure de filtrage. La figure
+\textcolor{red}{\ref{fig:Distribution-des-=0000E9tats}} montrent
+la distribution des états estimés correspondante à certains instants
+donnés pour les deux incréments.
+
+\begin{figure}
+\begin{centering}
+\subfloat[$\Gamma\left(k_{1},\theta_{1}\right)$ avec $\left(k_{1}=1,\theta_{1}=\frac{2}{3}\right)$]{\begin{centering}
+\includegraphics[scale=0.4]{\string"Figures/Distribution à chaque instant (a)\string".eps}
+\par\end{centering}
+}
+\par\end{centering}
+\begin{centering}
+\subfloat[$\Gamma\left(k_{2},\theta_{2}\right)$ avec $\left(k_{2}=\frac{1}{9},\theta_{2}=6\right)$]{\begin{centering}
+\includegraphics[scale=0.4]{\string"Figures/Distribution à chaque instant (b)\string".eps}
+\par\end{centering}
+}
+\par\end{centering}
+\caption{\label{fig:Distribution-des-=0000E9tats}Distribution des états estimés}
+\end{figure}
+

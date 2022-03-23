@@ -1,0 +1,33 @@
+
+\section*{Notations}
+
+Pour mieux comprendre le rapport, il faut faire attention à des notations
+suivantes:
+\begin{itemize}
+\item $X_{t}=\left\{ x_{0},\,x_{1},\text{\dots},\,x_{t}\right\} $ représente
+l'ensemble des états réels (cachés) du processus de dégradation jusqu'à
+l'instant $\left(t\right)$.
+\item $Y_{t}=\left\{ y_{0},\,y_{1},\text{\dots},\,y_{t}\right\} $ représente
+l'ensemble des valeurs de mesures correspondant respectivement à des
+états $\left(x_{t}\right)$. En supposant que au début $\left(t=0\right)$,
+on n'effectue pas aucune mesure, donc $Y_{t}=\left\{ y_{1},\text{\dots},\,y_{t}\right\} $
+effectivement.
+\item $\left(x_{t}^{i},i=1:N_{s}\right)$ désigne l'échantillon $\left(i\right)$
+de l'état $\left(x_{t}\right)$.
+\item $\left\{ x_{t}^{i}\right\} _{i=1}^{N_{s}}$ désigne un ensemble contenant
+$N_{s}$ échantillons.
+\item Dans ce rapport, quand on parle d'un échantillon, on souhaite parler
+de la position de cet échantillon. Et quand cet échantillon est assigné
+d'un poids, il devient une \textit{particule. }
+\item Dans quelques articles sur le filtre particulaire, le terme ``\textit{filtering
+distribution}'' est utilisé pour désigner la loi marginale\textit{
+$p\left(x_{t}\mid Y_{t}\right)$ }de la loi a posteriori\textit{ }$p\left(X_{t}\mid Y_{t}\right)$.
+Pour la raison de simplicité, dans ce rapport on utilise abusivement
+le terme loi \textit{a posteriori} pour indiquer cette loi marginale.
+En effet, avant d'estimer la vie résiduelle à un instant donné $\left(t\right)$,
+il s'agit d'un problème d'estimer le niveau de dégradation $\left(x_{t}\right)$
+à cet instant en tenant compte des valeurs de mesures $\left(Y_{t}\right)$.
+Ce travail préliminaire peut être réalisé par l'étude de la loi \textit{a
+posteriori $p\left(x_{t}\mid Y_{t}\right)$. }
+\end{itemize}
+

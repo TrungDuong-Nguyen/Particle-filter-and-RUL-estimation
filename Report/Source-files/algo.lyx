@@ -1,0 +1,561 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass report
+\begin_preamble
+% DO NOT ALTER THIS PREAMBLE!!!
+%
+% This preamble is designed to ensure that the User's Guide prints
+% out as advertised. If you mess with this preamble,
+% parts of the User's Guide may not print out as expected.  If you
+% have problems LaTeXing this file, please contact 
+% the documentation team
+% email: lyx-docs@lists.lyx.org
+
+\usepackage{ifpdf} % part of the hyperref bundle
+\ifpdf % if pdflatex is used
+
+ % set fonts for nicer pdf view
+ \IfFileExists{lmodern.sty}{\usepackage{lmodern}}{}
+
+\fi % end if pdflatex is used
+
+% for correct jump positions whe clicking on a link to a float
+\usepackage[figure]{hypcap}
+
+% the pages of the TOC is numbered roman
+% and a pdf-bookmark for the TOC is added
+\let\myTOC\tableofcontents
+\renewcommand\tableofcontents{%
+  \frontmatter
+  \pdfbookmark[1]{\contentsname}{}
+  \myTOC
+  \mainmatter }
+
+% define a short command for \textvisiblespace
+\newcommand{\spce}{\textvisiblespace}
+
+% macro for italic page numbers in the index
+\newcommand{\IndexDef}[1]{\textit{#1}}
+
+% for customized page headers/footers
+% only needed because they are only used in one section of the document
+\usepackage{fancyhdr}
+% change header rule width
+\renewcommand{\headrulewidth}{2pt}
+
+% workaround for a makeindex bug,
+% see sec. "Index Entry Order"
+% only uncomment this when you are using makindex
+%\let\OrgIndex\index 
+%\renewcommand*{\index}[1]{\OrgIndex{#1}}
+\end_preamble
+\options refpage,intoc,bibliography=totoc,index=totoc,BCOR7.5mm,captions=tableheading
+\use_default_options false
+\begin_modules
+customHeadersFooters
+enumitem
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref true
+\pdf_title "The LyX User's Guide"
+\pdf_author "LyX Team"
+\pdf_subject "LyX"
+\pdf_keywords "LyX"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered true
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks true
+\pdf_backref false
+\pdf_pdfusetitle false
+\pdf_quoted_options "linkcolor=black, citecolor=black, urlcolor=blue, filecolor=blue, pdfpagelayout=OneColumn, pdfnewwindow=true, pdfstartview=XYZ, plainpages=false"
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\notefontcolor #0000ff
+\branch Question
+\selected 1
+\filename_suffix 0
+\color #00ff00
+\end_branch
+\branch Answer
+\selected 0
+\filename_suffix 0
+\color #aa55ff
+\end_branch
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 2
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict true
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Box Frameless
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\align center
+À l'instant 
+\shape italic
+(t=0)
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Formula $\,$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Initialisation: 
+\begin_inset Formula 
+\[
+x_{0}^{i}\sim p\left(x_{0}\right),\, i=1:N_{s}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+----------------------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+À partir de l'instant 
+\shape italic
+(t
+\begin_inset Formula $\geq$
+\end_inset
+
+1)
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Formula $\,$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+\shape italic
+Échantillonnage d'importance
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Prédiction: 
+\begin_inset Formula 
+\[
+x_{t}^{i}\sim p(x_{t}\mid x_{t-1}),\, i=1:N_{s}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Correction: 
+\begin_inset Formula 
+\[
+\text{w}_{t}^{i}=p\left(y_{t}\mid x_{t}\right),\, i=1:N_{s}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+\shape italic
+Normaliser
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula 
+\[
+\text{w}{}_{t}^{i}=\frac{\text{w}{}_{t}^{i}}{{\displaystyle \sum_{i=1}^{N_{s}}}\text{w}_{t}^{i}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+\shape italic
+Estimer l'état de dégradation
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula 
+\[
+x{}_{MMSE}={\displaystyle \sum_{i=1}^{N_{s}}x_{t}^{i}\times\text{w}_{t}^{i}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+\shape italic
+Rééchantillonnage
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula 
+\[
+x{}_{t}^{i}=resample(x_{t}^{i},\,\text{w}_{t}^{i}),\, i=1:N_{s}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\shape italic
+Filtre SISR avec rééchantillonnage systématique (filtre bootstrap).
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Box Frameless
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\align center
+À l'instant 
+\shape italic
+(t=0)
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Formula $\,$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Initialisation: 
+\begin_inset Formula 
+\[
+x_{0}^{i}\sim p\left(x_{0}\right),\text{w}_{0}^{i}=\nicefrac{1}{N_{s}}\, i=1:N_{s}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+-----------------------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+À partir de l'instant 
+\shape italic
+(t
+\begin_inset Formula $\geq$
+\end_inset
+
+1)
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Formula $\,$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+\shape italic
+Échantillonnage d'importance
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Prédiction: 
+\begin_inset Formula 
+\[
+x_{t}^{i}\sim p(x_{t}\mid x_{t-1}),\, i=1:N_{s}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Correction: 
+\begin_inset Formula 
+\[
+\text{w}_{t}^{i}=\text{w}_{t-1}^{i}\times p\left(y_{t}\mid x_{t}\right),\, i=1:N_{s}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+\shape italic
+Normaliser
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula 
+\[
+\text{w}{}_{t}^{i}=\frac{\text{w}{}_{t}^{i}}{{\displaystyle \sum_{i=1}^{N_{s}}}\text{w}_{t}^{i}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+\shape italic
+Estimer l'état de dégradation
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula 
+\[
+x_{MMSE}={\displaystyle \sum_{i=1}^{N_{s}}x_{t}^{i}\times\text{w}_{t}^{i}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+\shape italic
+Calculer le nombre d'échantillons effectives
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula 
+\[
+N{}_{eff}=\frac{1}{{\displaystyle \sum_{i=1}^{N_{s}}\left(\text{w}_{t}^{i}\right)^{2}}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Si 
+\begin_inset Formula $N{}_{eff}\leq N_{thresh}$
+\end_inset
+
+ alors
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+\shape italic
+Rééchantillonnage
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula 
+\[
+x{}_{t}^{i}=resample(x_{t}^{i},\,\text{w}_{t}^{i}),\, i=1:N_{s}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula 
+\[
+\text{w}{}_{t}^{i}=\nicefrac{1}{N}_{s},\, i=1:N_{s}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Filtre SISR 
+\shape italic
+Filtre SISR avec redistribution adaptative.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

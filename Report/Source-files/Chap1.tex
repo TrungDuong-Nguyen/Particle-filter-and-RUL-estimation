@@ -1,0 +1,84 @@
+\selectlanguage{english}%
+
+\chapter{\textcolor{black}{Introduction}}
+
+\section{Problématique}
+
+La durée de vie résiduelle (RUL) est définie comme le temps de fonctionnement
+restant d'un composant (ou d'un système) avant la date de défaillance.
+Ainsi la prédiction de cette durée joue un rôle important dans les
+stratégies de maintenance. En général, la RUL est estimée en s'appuyant
+sur des données obtenues à partir des mesures du niveau de dégradation
+jusqu'à l'instant courant. Pourtant, à cause de l'imparfait des capteurs
+ainsi que l'impact de l'environnement de travail, les données surveillées
+sont souvent contaminées. Cela pose des difficultés pour le diagnostic
+(retrouver le niveau de dégradation actuel) et par conséquent le pronostic
+(prévoir l'évolution dans le future de l'état de dégradation). Dans
+le cadre de ce rapport on s'intéresse en particulier à l'approche
+de type filtrage particulaire pour traiter ce problème.
+
+Le filtre particulaire est une implémentation de l'estimation Bayésienne
+récursive en utilisant la méthode de Monte Carlo séquentielle (voir
+chapitre 2). L'idée est d'approcher à chaque instant $\left(t\right)$,
+la distribution \textit{a posteriori} $p\left(x_{t}\mid Y_{t}\right)$
+du niveau de dégradation par une distribution discrète formée d'un
+ensemble d'échantillons avec leurs poids associés, qu'on appelle sous
+le terme \textit{particules} $\left\{ x_{t}^{i},\text{W}_{t}^{i}\right\} _{i=1}^{N_{s}}$.
+Selon la loi de grand nombre, lorsque le nombre d'échantillons est
+grand, ils caractérisent bien la distribution a posteriori. Une fois
+qu'on a obtenu la loi a posteriori, on peut estimer le niveau de dégradation
+réel $\left(x_{t}\right)$. Finalement, après avoir estimer $\left(x_{t}\right)$,
+le calcul de la RUL est réalisé à l'aide de la simulation.
+
+\section{Modèle d'espace d'état}
+
+Le modèle d'espace d'état est l'outil fondamental pour représenter
+notre problème. Ce modèle constitue deux équations: l'équation d'état
+et l'équation d'observation. La première décrit le processus de dégradation
+en le modélisant par une suite des états dépendant du temps tandis
+que la deuxième donne la valeur de mesure \textit{bruitée }du niveau
+de dégradation courant. Un tel modèle est montré ci-dessous:
+\begin{equation}
+\begin{cases}
+x_{t}=f\left(x_{t-1},\,v_{t}\right)\\
+y_{t}=h\left(x_{t},\,\varepsilon_{t}\right)
+\end{cases}\label{eq:Mod=0000E8le g=0000E9n=0000E9ral}
+\end{equation}
+
+où $f\left(.\right)$ et $h\left(.\right)$ sont deux fonctions (linéaires
+ou non linéaires) supposées connues. $\left(v_{t}\right)\thicksim p\left(v\right)$
+et $\left(\varepsilon{}_{t}\right)\thicksim q\left(\varepsilon\right)$
+sont des bruits indépendants (pas nécessairement Gaussien) de processus
+et de mesure respectivement. 
+
+On suppose que la suite $X_{t}=\left\{ x_{0},\,x_{1},\text{\dots},\,x_{t}\right\} $
+est Markovien, c'est à dire conditionnellement aux états passés $X_{t-1}=\left\{ x_{0},\,x_{1},\text{\dots},\,x_{t-1}\right\} $,
+l'état présent $\left(x_{t}\right)$ ne dépend que de l'état précédent
+$\left(x_{t-1}\right)$ à travers la \textit{densité de transition}
+(ou \textit{noyau de transition}):
+\begin{equation}
+p\left(x_{t}\mid X_{t-1}\right)=p\left(x_{t}\mid x_{t-1}\right)\leftrightarrow f\left(x_{t}\mid x_{t-1}\right)\label{eq:hypoth=0000E8se 1}
+\end{equation}
+Une autre hypothèse importante est que la valeur de mesure $\left(y_{t}\right)$
+sachant les états passés $\left(X_{t-1}\right)$ et les observations
+passées $\left(Y_{t-1}\right)$ ne dépend que de l'état présent $\left(x_{t}\right)$.
+Une telle relation est représentée par la \textit{fonction de vraisemblance:
+\begin{equation}
+p\left(y_{t}\mid Y_{t-1},X_{t-1}\right)=p\left(y_{t}\mid x_{t}\right)\leftrightarrow h\left(y_{t}\mid x_{t}\right)\label{eq:hypoth=0000E8se 2}
+\end{equation}
+}Par ailleurs, on suppose aussi que l'état initial $\left(x_{0}\right)$
+est distribué selon une \textit{loi initiale $p\left(x_{0}\right)$.}
+
+La description probabiliste formée de trois éléments $p\left(x_{t}\mid x_{t-1}\right)$,
+$p\left(y_{t}\mid x_{t}\right)$ et $p\left(x_{0}\right)$ du modèle
+d'espace d'état est montrée dans la figure\textcolor{red}{{} \ref{fig:Chap1 Mod=0000E8le d'espace d'=0000E9tat}}.
+
+\begin{figure}
+\begin{centering}
+\includegraphics[scale=0.75]{\string"Figures/State Space Model\string".eps}
+\par\end{centering}
+\caption{\label{fig:Chap1 Mod=0000E8le d'espace d'=0000E9tat}Modèle d'espace
+d'état}
+\end{figure}
+\selectlanguage{french}
+

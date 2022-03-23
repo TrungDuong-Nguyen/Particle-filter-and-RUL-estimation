@@ -1,0 +1,5557 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass scrbook
+\begin_preamble
+% DO NOT ALTER THIS PREAMBLE!!!
+%
+% This preamble is designed to ensure that the User's Guide prints
+% out as advertised. If you mess with this preamble,
+% parts of the User's Guide may not print out as expected.  If you
+% have problems LaTeXing this file, please contact 
+% the documentation team
+% email: lyx-docs@lists.lyx.org
+
+\usepackage{ifpdf} % part of the hyperref bundle
+\ifpdf % if pdflatex is used
+
+ % set fonts for nicer pdf view
+ \IfFileExists{lmodern.sty}{\usepackage{lmodern}}{}
+
+\fi % end if pdflatex is used
+
+% for correct jump positions whe clicking on a link to a float
+\usepackage[figure]{hypcap}
+
+% the pages of the TOC is numbered roman
+% and a pdf-bookmark for the TOC is added
+\let\myTOC\tableofcontents
+\renewcommand\tableofcontents{%
+  \frontmatter
+  \pdfbookmark[1]{\contentsname}{}
+  \myTOC
+  \mainmatter }
+
+% define a short command for \textvisiblespace
+\newcommand{\spce}{\textvisiblespace}
+
+% macro for italic page numbers in the index
+\newcommand{\IndexDef}[1]{\textit{#1}}
+
+% for customized page headers/footers
+% only needed because they are only used in one section of the document
+\usepackage{fancyhdr}
+% change header rule width
+\renewcommand{\headrulewidth}{2pt}
+
+% workaround for a makeindex bug,
+% see sec. "Index Entry Order"
+% only uncomment this when you are using makindex
+%\let\OrgIndex\index 
+%\renewcommand*{\index}[1]{\OrgIndex{#1}}
+\end_preamble
+\options refpage,intoc,bibliography=totoc,index=totoc,BCOR7.5mm,captions=tableheading
+\use_default_options false
+\begin_modules
+customHeadersFooters
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref true
+\pdf_title "The LyX User's Guide"
+\pdf_author "LyX Team"
+\pdf_subject "LyX"
+\pdf_keywords "LyX"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered true
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks true
+\pdf_backref false
+\pdf_pdfusetitle false
+\pdf_quoted_options "linkcolor=black, citecolor=black, urlcolor=blue, filecolor=blue, pdfpagelayout=OneColumn, pdfnewwindow=true, pdfstartview=XYZ, plainpages=false"
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\notefontcolor #0000ff
+\branch Question
+\selected 1
+\filename_suffix 0
+\color #00ff00
+\end_branch
+\branch Answer
+\selected 0
+\filename_suffix 0
+\color #aa55ff
+\end_branch
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 2
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict true
+\end_header
+
+\begin_body
+
+\begin_layout Chapter
+Filtre particulaire SISR et l'estimation de la RUL
+\end_layout
+
+\begin_layout Standard
+Dans le quatrième chapitre, on présente d'abord le filtre particulaire SISR
+ (
+\shape italic
+Sequential Importance Sampling and Resampling
+\shape default
+ en anglais) developpé basant sur le SIS filtre particulaire.
+ Ensuite, on parle de l'estimation de la RUL et puis on analyse des résultats
+ de simulation et donne des remarques importantes.
+ La loi du temps d'atteinte est aussi abordée dans ce chapitre.
+\end_layout
+
+\begin_layout Section
+Filtre Bootstrap
+\end_layout
+
+\begin_layout Standard
+Comme on a vu dans le chapitre 3, un grave défaut du filtre particulaire
+ SIS est le dégénérescence de poids
+\shape italic
+ 
+\shape default
+qui mène à une représentation inadéquate de la loi a posteriori
+\shape italic
+.
+ 
+\shape default
+Alors, il est indispensable de penser à une technique qui vise à ré-initialiser
+ le filtre régulièrement pour prévenir ce phénomène.
+ L'idée est d'introduire après l'estimation de l'état 
+\begin_inset Formula $\left(x_{t}\right)$
+\end_inset
+
+, une étape supplémentaire dite 
+\shape italic
+ré-échantillonnage
+\shape default
+ (ou 
+\shape italic
+redistribution
+\shape default
+).
+ Dans cette étape, les échantillons ayant un poids faible sont éliminés
+ tandis que ceux dont le poids est fort sont dupliqués et donc auront plus
+ de chance d'approcher la loi a posteriori à l'instant suivant.
+ En général, la redistribution
+\shape italic
+ 
+\shape default
+peut être considérée comme une autre étape d'échantillonnage d'importance
+\shape italic
+ 
+\shape default
+dans laquelle la distribution discrète pondérée 
+\begin_inset Formula $\left\{ x_{t}^{i},\text{W}_{t}^{i}\right\} _{i=1}^{N_{s}}$
+\end_inset
+
+ est approchée par un ensemble des échantillons non pondérés (appelés les
+ descendants) 
+\begin_inset Formula $\left\{ x_{t}^{i*}\right\} _{i*=1}^{N_{s}}$
+\end_inset
+
+.
+ De cette manière l'écart entre les poids d'importances
+\shape italic
+ 
+\shape default
+à chaque instant 
+\begin_inset Formula $\left(t\right)$
+\end_inset
+
+ est réduit et les particules peuvent être mieux profités.
+ Un algorithme de SIS filtre particulaire avec la redistribution
+\shape italic
+ 
+\shape default
+à chaque instants 
+\begin_inset Formula $\left(t\right)$
+\end_inset
+
+ est
+\shape italic
+ 
+\shape default
+introduit dans 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "gordon1993novel"
+
+\end_inset
+
+
+\color inherit
+ sous le nom 
+\shape italic
+filtre bootstrap .
+
+\shape default
+ Cet algorithme que l'on décrit dans 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:filtre-bootstrap"
+
+\end_inset
+
+
+\color inherit
+ prend aussi le noyau de transition
+\shape italic
+ 
+\shape default
+comme la
+\shape italic
+ 
+\shape default
+loi d'importance
+\shape italic
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Box Frameless
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\align center
+À l'instant 
+\begin_inset Formula $\left(t=0\right)$
+\end_inset
+
+
+\begin_inset Newline linebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+Initialisation
+\series default
+: 
+\begin_inset Formula $x_{0}^{i}\sim p\left(x_{0}\right),\, i=1:N_{s}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+----------------------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+À partir de l'instant 
+\shape italic
+
+\begin_inset Formula $\left(t\geq1\right)$
+\end_inset
+
+ 
+\begin_inset Newline linebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+Échantillonnage d'importance 
+\begin_inset Formula $\left(i=1:N_{s}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula $\begin{cases}
+x_{t}^{i}\sim p(x_{t}^{i}\mid x_{t-1}^{i})\\
+\omega_{t}^{i}=p\left(y_{t}\mid x_{t}^{i}\right)
+\end{cases}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+Normaliser
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula $\text{W}_{t}^{i}=\frac{\omega_{t}^{i}}{\sum_{i=1}^{N_{s}}\omega_{t}^{i}},\, i=1:N_{s}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+Estimer le niveau de dégradation
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula $x{}_{MMSE}={\displaystyle \sum_{i=1}^{N_{s}}\text{W}_{t}^{i}\times x_{t}^{i}}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+Redistribution 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $\left(i=1:N_{s}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula $x{}_{t}^{i*}=redistribution(x_{t}^{i},\,\text{W}_{t}^{i})$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula $\left(x_{t}^{i}=x_{t}^{i*}\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:filtre-bootstrap"
+
+\end_inset
+
+Filtre bootstrap
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note que après l'étape de redistribution à l'instant 
+\begin_inset Formula $\left(t-1\right)$
+\end_inset
+
+ les échantillons ont des poids uniformes, donc il n'est pas nécessaire
+ de sauvegarder ces poids pour l'instant 
+\begin_inset Formula $\left(t\right)$
+\end_inset
+
+.
+ Alors, la formule qui sert à pondérer les échantillons à l'instant 
+\begin_inset Formula $\left(t\right)$
+\end_inset
+
+ est très simple 
+\begin_inset Formula $\omega_{t}^{i}=p\left(y_{t}\mid x_{t}\right)$
+\end_inset
+
+ (pas de multiplication récursive).
+ L'utilisation du
+\shape italic
+ 
+\shape default
+noyau de transition comme la loi d'importance est très populaire car quand
+ le problème change (l'équation d'état change), on ne doit que corriger
+ l'expression du noyau de transition et de la fonction de vraisemblance
+\shape italic
+ 
+\shape default
+dans le programme
+\shape italic
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Selon 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "casella1996statistical"
+
+\end_inset
+
+
+\color inherit
+, 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "carpenter1999improved"
+
+\end_inset
+
+
+\color inherit
+ et 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "johansen2007monte"
+
+\end_inset
+
+
+\color inherit
+, l'étape de redistribution
+\shape italic
+ 
+\shape default
+engendre extra Monte Carlo variance de l'estimateur.
+ Donc, on est recommandé d'effectuer préalablement l'estimation de l'état
+ de dégradation à chaque instant à l'aide des échantillons pondérés.
+\end_layout
+
+\begin_layout Standard
+Le mécanisme de redistribution
+\shape italic
+ 
+\shape default
+est illustrée dans la figure 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Procédure-de-rédistribution"
+
+\end_inset
+
+
+\color inherit
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename Figures/Resampling.jpg
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Procédure-de-rédistribution"
+
+\end_inset
+
+Mécanisme de redistribution
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+En général, le filtre bootstrap
+\shape italic
+ 
+\shape default
+ne donne plus une approximation efficace de la loi a posteriori
+\shape italic
+ 
+\shape default
+quand le temps T 
+\begin_inset Formula $\left(t=1:T\right)$
+\end_inset
+
+ est très grand à cause des redistributions successives.
+ En effet, le mécanisme de redistribution
+\shape italic
+ 
+\shape default
+réduit
+\shape italic
+ 
+\shape default
+la diversité des particules, c'est-à-dire quand le temps passe, l'ensemble
+ des particules contient seulement quelques unes 
+\begin_inset Quotes eld
+\end_inset
+
+distinguées
+\begin_inset Quotes erd
+\end_inset
+
+.
+ La plupart entre eux sont des descendants d'un même ancêtre.
+ C'est évidemment la conséquence d'effectuer l'échantillonnage d'une distributio
+n discrète au lieu d'une distribution continue.
+ Ce phénomène qu'on appelle 
+\shape italic
+dégénérescence des positions
+\shape default
+ (
+\shape italic
+sample imporverishment
+\shape default
+ en anglais) a le même effet que la dégénérescence de poids
+\shape italic
+ 
+\shape default
+mentionnée dans le chapitre 3.
+ D'après 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "avitzour1995stochastic"
+
+\end_inset
+
+
+\color inherit
+, si le bruit du processus (l'incrément 
+\begin_inset Formula $\Gamma\left(k,\theta\right)$
+\end_inset
+
+ du processus Gamma) a une variance suffisamment grande, les échantillons
+ non pondérés 
+\begin_inset Formula $\left\{ x{}_{t}^{i*}\right\} _{i=1}^{N_{s}}$
+\end_inset
+
+ peuvent être propagés, dans l'étape de prédiction à l'instant suivant,
+ de sorte qu'ils peuvent maintenir une diversité adéquate au sein de l'ensemble
+ d'échantillons.
+ Au contraire, si 
+\begin_inset Formula $\left\{ x{}_{t}^{i*}\right\} _{i=1}^{N_{s}}$
+\end_inset
+
+ ne sont pas suffisamment contrebalancés par le bruit du processus, la qualité
+ de l'approximation de la loi a
+\shape italic
+ 
+\shape default
+posteriori est dégradée.
+ Pour résoudre ce problème, des mesures sont proposées et recapitulées dans
+ 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "gordon1993novel"
+
+\end_inset
+
+
+\color inherit
+, 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "arulampalam2002tutorial"
+
+\end_inset
+
+
+\color inherit
+, 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "gustafsson2002particle"
+
+\end_inset
+
+
+\color inherit
+, 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "legland2003filtrage"
+
+\end_inset
+
+
+\color inherit
+ et 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "doucet2009tutorial"
+
+\end_inset
+
+
+\color inherit
+.
+\end_layout
+
+\begin_layout Section
+Filtre SISR avec redistribution d'adaptation 
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Variants"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Pour obtenir une estimation du niveau de dégradation plus exacte à chaque
+ instant 
+\begin_inset Formula $\left(t\right)$
+\end_inset
+
+, il est possible de modifier l'
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:filtre-bootstrap"
+
+\end_inset
+
+
+\color inherit
+ sur les points suivants:
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+- La redistribution multinomiale est la plus simple technique par l'utilisation
+ delaquelle 
+\begin_inset Formula $N_{s}$
+\end_inset
+
+ nouveaux échantillons (les descendants) sont sélectionnées à partir de
+ 
+\begin_inset Formula $N_{s}$
+\end_inset
+
+ ancients échantillons avec la probabilité égale à leurs poids normalisés:
+ 
+\begin_inset Formula $p\left(x{}_{t}^{i*}=x{}_{t}^{i}\right)=\text{W}_{t}^{i}$
+\end_inset
+
+.
+ En choissisant d'autres techniques de redistribution on peut réduire la
+ variance introduite par l'étape de redistribution
+\shape italic
+.
+
+\shape default
+ L'une est la technique de redistribution systématique proposée par Kitagawa
+ 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "kitagawa1996monte"
+
+\end_inset
+
+
+\color inherit
+ et l'autre est la redistribution des résidus introduite par Liu et Chen
+ 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "liu1998sequential"
+
+\end_inset
+
+
+\color inherit
+.
+ Une comparaison sur la qualité et la complexité de ces trois techniques
+ est effectué dans 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "douc2005comparison"
+
+\end_inset
+
+
+\color inherit
+ et 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "hol2006resampling"
+
+\end_inset
+
+
+\color inherit
+.
+ Dans ce rapport les résultats de la simulation sont obtenus avec l'utilisation
+ de la technique de redistribution de Kitagawa dont le code est donné dans
+ 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "campillo2006filtrage"
+
+\end_inset
+
+
+\color inherit
+.
+ 
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+- On peut améliorer la performance du filtre particulaire en augmentant
+ le nombre d'échantillons.
+ Néanmoins, cela ne paraît pas comme une solution pratique.
+ Il est préférable de choisir une meilleure loi d'importance
+\shape italic
+.
+
+\shape default
+ 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "cappe2007overview"
+
+\end_inset
+
+
+\color inherit
+ donne un bon résumé sur cette alternative .
+ Une loi d'importance
+\shape italic
+ 
+\shape default
+optimale obtenu dans un cas particulier est représenté dans 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "doucet2000sequential"
+
+\end_inset
+
+
+\color inherit
+ et 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "arulampalam2002tutorial"
+
+\end_inset
+
+
+\color inherit
+.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+- On sait maintenant que l'on ne doit pas redistribuer à chaque instant
+ mais de le faire de telle manière que la redistribution puisse prévenir
+ la
+\shape italic
+ 
+\shape default
+dégénérescence de poids
+\shape italic
+ 
+\shape default
+et ne cause pas une dégénérescence des positions
+\shape italic
+ 
+\shape default
+trop grave.
+ Autrement dit, les échantillons sont redistribués seulement quand un grand
+ déséquilibre de leurs poids d'importances est constaté.
+ Alors, on souhaite de disposer une critère qui nous permet de déterminer
+ s'il est nécessaire de redistribuer les échantillons ou s'il faut les conserver.
+ 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "kong1994sequential"
+
+\end_inset
+
+
+\color inherit
+, 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "liu1995blind"
+
+\end_inset
+
+
+\color inherit
+ quantifient le niveau de déséquilibre des poids d'importances en utilisant
+ un coefficient appelé nombre d'échantillons effectives:
+\begin_inset Formula 
+\[
+N_{eff}\approx\frac{1}{\sum_{i=1}^{N_{s}}\left(\text{W}_{t}^{i}\right)^{2}}\in\left[1,N_{s}\right]
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Lorsque 
+\begin_inset Formula $N_{eff}$
+\end_inset
+
+ est proche de 
+\begin_inset Formula $N_{s}$
+\end_inset
+
+, les échantillons contribuent de façon égale à l'approximation de la loi
+ a posteriori
+\shape italic
+ 
+\shape default
+tandis que une valeur proche de 1 indique une dégénérescence de poids
+\shape italic
+ 
+\shape default
+sévère.
+ La redistribution est faite seulement quand 
+\begin_inset Formula $N_{eff}$
+\end_inset
+
+ est inférieur à un seuil 
+\begin_inset Formula $N_{thresh}$
+\end_inset
+
+ prédéterminé, typiquement 
+\begin_inset Formula $N_{thresh}=\frac{N_{s}}{2}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Tenir compte de la premier et de la troisième modification mentionnées au
+ dessus, un algorithme du filtre SISR avec redistribution d'adaptation est
+ présenté dans l'
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:-Filtre-adaptive"
+
+\end_inset
+
+
+\color inherit
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Box Frameless
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\align center
+À l'instant 
+\begin_inset Formula $\left(t=0\right)$
+\end_inset
+
+
+\begin_inset Newline linebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+Initialisation
+\series default
+:
+\begin_inset Formula $\begin{cases}
+x_{0}^{i} & \sim p\left(x_{0}\right)\\
+\omega_{0}^{i} & =\nicefrac{1}{N_{s}}
+\end{cases},\, i=1:N_{s}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+-----------------------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+À partir de l'instant 
+\shape italic
+
+\begin_inset Formula $\left(t\geq1\right)$
+\end_inset
+
+
+\begin_inset Newline linebreak
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+Échantillonnage d'importance
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula $\begin{cases}
+x_{t}^{i} & \sim p(x_{t}^{i}\mid x_{t-1}^{i})\\
+\omega_{t}^{i} & =\omega_{t}^{i}\times p\left(y_{t}\mid x_{t}^{i}\right)
+\end{cases}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+Normaliser
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula $\text{W}_{t}^{i}=\frac{\omega_{t}^{i}}{\sum_{i=1}^{N_{s}}\omega_{t}^{i}},\, i=1:N_{s}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+Estimer le niveau de dégradation
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula $x{}_{MMSE}={\displaystyle \sum_{i=1}^{N_{s}}\text{W}_{t}^{i}\times x_{t}^{i}}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+Calculer le nombre d'échantillons effectives
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula $N{}_{eff}=\frac{1}{{\displaystyle \sum_{i=1}^{N_{s}}\left(\text{W}_{t}^{i}\right)^{2}}}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Si 
+\begin_inset Formula $N{}_{eff}\leq N_{thresh}$
+\end_inset
+
+ alors
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+
+\series bold
+Redistribution 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $\left(i=1:N_{s}\right)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula $x{}_{t}^{i*}=redistribution(x_{t}^{i},\,\text{W}_{t}^{i})$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Formula $\begin{cases}
+x{}_{t}^{i}=x{}_{t}^{i*}\\
+\omega_{t}^{i}=\nicefrac{1}{N}_{s}
+\end{cases}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:-Filtre-adaptive"
+
+\end_inset
+
+ Filtre SISR avec redistribution d'adaptation
+\shape italic
+.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Comme on a dit au dessus, la redistribution
+\shape italic
+ 
+\shape default
+donne effectivement des 
+\begin_inset Quotes eld
+\end_inset
+
+bruits
+\begin_inset Quotes erd
+\end_inset
+
+ additionnels.
+ Cependant, redistribuer des échantillons nous aide à éviter l'accumulation
+ des erreurs avec le temps et donc rendre l'approximation de la loi a posteriori
+ plus stable 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "doucet2009tutorial"
+
+\end_inset
+
+
+\color inherit
+ , 
+\color green
+
+\begin_inset CommandInset citation
+LatexCommand cite
+key "cappe2007overview"
+
+\end_inset
+
+
+\color inherit
+.
+ C'est la raison pourlaquelle la redistribution est largement utilisée.
+ En pratique, implémenter correctement l'étape de redistribution peut améliorer
+ vivement la performance du filtre particulaire.
+ Pour illustrer cette idée, on défini tout d'abord un indicateur qui désigne
+ l'erreur quadratique moyenne de l'estimation à chaque instant 
+\begin_inset Formula $\left(t\right)$
+\end_inset
+
+:
+\begin_inset Formula 
+\begin{equation}
+RMSE_{t}=\sqrt{\frac{1}{300}\times\sum_{k=1}^{300}\left(\left(x_{MMSE}\right)_{t}^{k}-x_{t}\right)^{2}}\label{eq:RMSE_t}
+\end{equation}
+
+\end_inset
+
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+avec l'ensemble
+\begin_inset Formula $\left\{ \left(x_{MMSE}\right)_{t}^{k}\right\} _{k=1}^{300}$
+\end_inset
+
+ contient 300 valeurs estimées du niveau de dégradation réel 
+\begin_inset Formula $\left(x_{t}\right)$
+\end_inset
+
+ à chaque instant 
+\begin_inset Formula $\left(t=1:500\right)$
+\end_inset
+
+, obtenues après k = 300 itérations.
+\end_layout
+
+\begin_layout Standard
+En utilisant les algorithmes 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Algorithme SIS filtre particulaire"
+
+\end_inset
+
+
+\color inherit
+ et 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:-Filtre-adaptive"
+
+\end_inset
+
+
+\color inherit
+, on obtient pour chacun les valeurs 
+\begin_inset Formula $RMSE_{t}$
+\end_inset
+
+ ainsi que les variance 
+\begin_inset Formula $var\left(\left\{ \left(x_{MMSE}\right)_{t}^{k}\right\} _{k=1}^{300}\right)$
+\end_inset
+
+ à chaque instant 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $\left(t=1:500\right)$
+\end_inset
+
+ correspondantes.
+ Les avantages de l'utilisation d'un filtre SISR avec redistribution d'adaption
+ au lieu d'un SIS filtre particulaire est indiquer dans la figure 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:RMSE_t"
+
+\end_inset
+
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/RMSE à chaque instant (a).jpg
+	scale 30
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/variance à chaque instant (a).jpg
+	scale 30
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+SIS filtre particulaire
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/RMSE à chaque instant (b).jpg
+	scale 30
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/variance à chaque instant (b).jpg
+	scale 30
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Filtre SISR avec redistribution adaptive
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:RMSE_t"
+
+\end_inset
+
+
+\begin_inset Formula $RMSE_{t}$
+\end_inset
+
+ et 
+\begin_inset Formula $var\left(\left\{ \left(x_{MMSE}\right)_{t}^{k}\right\} _{k=1}^{300}\right)$
+\end_inset
+
+ à chaque instant 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $\left(t=1:500\right)$
+\end_inset
+
+
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La trajectoire de 
+\begin_inset Formula $RMSE_{t}$
+\end_inset
+
+ dans la figure 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:RMSE_t"
+
+\end_inset
+
+
+\color inherit
+ n'est pas monotone, ce qui nous mette en difficulté à donner une conclusion
+ certaine sur l'exactitude de l'estimation du niveau de dégradation.
+ Plus précisément, il est probable qu'un grand nombre de mesures effectuées
+ n'assurent pas une amélioration de la qualité de l'estimation.
+ En effet, l'utilisation beaucoup de données bruitées peuvent diminuer la
+ performance du filtre particulaire.
+ Alors, on pense à utiliser de manière plus intelligemment un moindre données
+ pour les profiter mais sans avoir perturber le filtre particulaire.
+\end_layout
+
+\begin_layout Section
+Estimation de la RUL
+\end_layout
+
+\begin_layout Standard
+Rappelons que l'instant courant est 
+\begin_inset Formula $\left(t_{n}=500\right)$
+\end_inset
+
+.
+ Pour calculer la vie résiduelle, on propage le processus Gamma avec le
+ niveau de dégradation initial 
+\begin_inset Formula $\left(x_{MMSE}\right)_{t=500}^{k},k=1:300$
+\end_inset
+
+ jusqu'au moment 
+\begin_inset Formula $\left(t\right)$
+\end_inset
+
+ où 
+\begin_inset Formula $\left(x_{MMSE}\right)_{t}^{k}$
+\end_inset
+
+ atteint un seuil prédéterminé appelé seuil de défaillance.
+ Alors, si la date de défaillance prévue est notée 
+\begin_inset Formula $T_{déf}$
+\end_inset
+
+, la RUL correspondant est:
+\begin_inset Formula 
+\[
+RUL=T_{d\acute{e}f}-t_{n}=T_{d\acute{e}f}-500
+\]
+
+\end_inset
+
+En répétant cette procédure 
+\begin_inset Formula $k=300$
+\end_inset
+
+ fois, on obtient la distribution de la RUL.
+\end_layout
+
+\begin_layout Standard
+Avant de faire la simulation, il est indispensable de déterminer le seuil
+ de défaillance 
+\begin_inset Formula $S_{déf}$
+\end_inset
+
+.
+ Suppose que la date de défaillance réel est 
+\begin_inset Formula $T_{déf}=600$
+\end_inset
+
+, donc la RUL réelle est 100.
+ La figure 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Seuil-de-défaillance"
+
+\end_inset
+
+
+\color inherit
+ montre que le seuil de défaillance correspondant de deux processus Gamma
+ de l'incrément 
+\begin_inset Formula $\Gamma\left(k_{1}=1,\theta_{1}=\nicefrac{2}{3}\right)$
+\end_inset
+
+ et 
+\begin_inset Formula $\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right)$
+\end_inset
+
+ est 424.5 et 347.4 respectivement.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Figures/Seui de défaillance.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Seuil-de-défaillance"
+
+\end_inset
+
+Seuil de défaillance
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+L'évolution du niveau de dégradation est montrée dans la figure 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Estimation-de-la"
+
+\end_inset
+
+
+\color inherit
+.
+ La distribution de la RUL estimée est dessinée en couleur verte.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Figures/Estimation de la RUL (a).jpg
+	scale 25
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Figures/Estimation de la RUL en fonction de temps (a).jpg
+	scale 25
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Processus Gamma de l'incrément 
+\begin_inset Formula $\Gamma\left(k_{1}=1,\theta_{1}=\nicefrac{2}{3}\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Figures/Estimation de la RUL (b).jpg
+	scale 25
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Figures/Estimation de la RUL en fonction de temps (b).jpg
+	scale 25
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Processus Gamma de l'incrément 
+\begin_inset Formula $\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Estimation-de-la"
+
+\end_inset
+
+Estimation de la RUL
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Résultats de simulation
+\end_layout
+
+\begin_layout Standard
+Dans cette section, on cherche à comprendre l'impact de deux paramètres:
+ nombre d'échantillons 
+\begin_inset Formula $\left(N_{s}\right)$
+\end_inset
+
+ et l'écart-type du bruit de mesures 
+\begin_inset Formula $\left(\sigma_{\varepsilon}\right)$
+\end_inset
+
+ sur la performance du filtre particulaire.
+\end_layout
+
+\begin_layout Subsection
+Quand le nombre d'échantillons 
+\begin_inset Formula $\left(N_{s}\right)$
+\end_inset
+
+ augmente
+\end_layout
+
+\begin_layout Standard
+D'abord, on introduit un nouveau indicateur 
+\begin_inset Formula $RMSE_{globale}$
+\end_inset
+
+ pour avoir une vue globale sur l'importance des paramètres comme le nombre
+ d'échantillons 
+\begin_inset Formula $N_{s}$
+\end_inset
+
+ et l'écart-type du bruit de mesures 
+\begin_inset Formula $\sigma_{\varepsilon}$
+\end_inset
+
+:
+\begin_inset Formula 
+\[
+RMSE_{globale}^{k}=\sqrt{\frac{1}{T}\sum_{t=1}^{T}\left(\left(x_{MMSE}\right)_{t}^{k}-x_{t}\right)^{2}}
+\]
+
+\end_inset
+
+Car à chaque simulation 
+\begin_inset Formula $\left(k\right)$
+\end_inset
+
+, le filtre particulaire produit une différente trajectoire du niveau de
+ dégradation estimé 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $\left\{ x_{MMSE}\right\} _{t=1}^{T},T=500$
+\end_inset
+
+, donc les valeurs 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+
+\begin_inset Formula $RMSE_{globale}$
+\end_inset
+
+ affichées dans les tableaux suivants est la moyenne des valeurs 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $RMSE_{globale}^{k}$
+\end_inset
+
+ obtenues après 
+\begin_inset Formula $\left(k=300\right)$
+\end_inset
+
+ simulations.
+ Plus on obtient un 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+
+\begin_inset Formula $RMSE_{globale}$
+\end_inset
+
+ petit, plus il est probable que l'on peut avoir une estimation précise.
+\end_layout
+
+\begin_layout Standard
+Calculée selon la formule 
+\color blue
+
+\begin_inset CommandInset ref
+LatexCommand eqref
+reference "eq:RMSE_t"
+
+\end_inset
+
+
+\color inherit
+ avec 
+\begin_inset Formula $\left(t=500\right)$
+\end_inset
+
+, 
+\begin_inset Formula $RMSE_{t_{n}=500}$
+\end_inset
+
+ désigne l'erreur de l'estimation du niveau de dégradation à l'instant courant.
+\end_layout
+
+\begin_layout Standard
+Un troisième indicateur utilisé est 
+\begin_inset Formula $RMSE_{RUL}$
+\end_inset
+
+ qui indique l'erreur de l'estimation de la RUL par rapport à la RUL réelle
+ (=100):
+\begin_inset Formula 
+\[
+RMSE_{RUL}=\sqrt{\frac{1}{300}\times\sum_{k=1}^{300}\left(\left(RUL\right)_{k}-100\right)^{2}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Les résultats de simulation sont présentés dans les tableaux suivantes:
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="12" columns="7">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell multirow="3" alignment="left" valignment="middle" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $N_{s}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\Gamma\left(k_{1}=1,\theta_{1}=\nicefrac{2}{3}\right),\sigma_{\varepsilon}=5$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multirow="4" alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+SIS filtre particulaire
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Filtre SISR avec redistribution d'adaptation
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multirow="4" alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{globale}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{t_{n}=500}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{RUL}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{globale}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{t_{n}=500}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{RUL}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+50
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.832
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.963
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+37.771
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.074
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.705
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+34.473
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+100
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.390
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8.114
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+36.933
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.047
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.643
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+34.430
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+300
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.030
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6.798
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+35.375
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.033
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.494
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+35.741
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+500
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.890
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.604
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+38.099
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.031
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.490
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+35.005
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1000
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.671
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.394
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+37.463
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.027
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.448
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+33.568
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2000
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.539
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.232
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+36.946
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.028
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.473
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+35.628
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4000
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.354
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.357
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+36.725
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.025
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.444
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+33.866
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7000
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.240
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.140
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+36.827
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.025
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.440
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+34.400
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10000
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.179
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6.623
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+35.948
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.025
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.429
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+33.925
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="12" columns="7">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell multirow="3" alignment="left" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $N_{s}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right),\sigma_{\varepsilon}=5$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+SIS filtre particulaire
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Filtre SISR avec redistribution d'adaptation
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{globale}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{t_{n}=500}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{RUL}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{globale}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{t_{n}=500}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{RUL}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+50
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11.237
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+19.822
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+44.955
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.498
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.608
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+41.677
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+100
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+9.980
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+14.886
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+44.364
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.392
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.144
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+40.025
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+300
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8.801
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11.447
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+42.990
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.311
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.117
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+40.475
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+500
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8.361
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11.570
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+42.283
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.298
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.116
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+42.015
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1000
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.955
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10.604
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+43.700
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.282
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.086
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+41.021
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2000
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.467
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10.499
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+39.610
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.278
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.117
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+38.559
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4000
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.171
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+9.137
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+45.841
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.275
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.136
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+42.825
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7000
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6.846
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+9.406
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+43.610
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.274
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.126
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+40.738
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10000
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6.680
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8.471
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+42.690
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.274
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.127
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+38.779
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Avec le SIS filtre particulaire, on trouve que plus 
+\begin_inset Formula $\left(N{}_{s}\right)$
+\end_inset
+
+ est grand, plus 
+\begin_inset Formula $RMSE{}_{globale}$
+\end_inset
+
+ décroit.
+ Néanmoins, pour la raison spécifiée dans la section 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Variants"
+
+\end_inset
+
+
+\color inherit
+, une valeur 
+\begin_inset Formula $RMSE_{globale}$
+\end_inset
+
+ petite n'assure pas une erreur de l'estimation petite.
+ Par ailleurs, avec un grand 
+\begin_inset Formula $\left(N{}_{s}\right)$
+\end_inset
+
+, le filtre particulaire donne des valeurs 
+\begin_inset Formula $RMSE_{globale}$
+\end_inset
+
+ et 
+\begin_inset Formula $RMSE_{t_{n}=500}$
+\end_inset
+
+ plus robuste.
+\end_layout
+
+\begin_layout Standard
+En utilisant un SIS filtre particulaire, 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+le processus Gamma
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+ dont l'incrément 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right)$
+\end_inset
+
+ ayant une variance plus grande offre des erreurs 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+
+\begin_inset Formula $RMSE_{globale}$
+\end_inset
+
+,
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+ 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+
+\begin_inset Formula $RMSE_{t_{n}=500}$
+\end_inset
+
+ et dans une certaine mesure, 
+\begin_inset Formula $RMSE_{RUL}$
+\end_inset
+
+ plus grandes.
+ C'est parce que un tel processus subit une dégénérescence de poids plus
+ sévère.
+ Avec l'algorithme du filtre SISR avec redistribution d'adaptation, la différenc
+e entre les deux processus Gamma au vu des indicateurs 
+\begin_inset Formula $RMSE_{globale}$
+\end_inset
+
+ et
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+ 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+
+\begin_inset Formula $RMSE_{t_{n}=500}$
+\end_inset
+
+ est réduite.
+ Pourtant, 
+\begin_inset Formula $RMSE_{RUL}$
+\end_inset
+
+ reste encore différé significativement car l'estimation de la RUL est fortement
+ influencé par la variance de l'incrément (voir figure 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Estimation-de-la"
+
+\end_inset
+
+
+\color inherit
+).
+ C'est aussi la raison pourlaquelle un bon diagnostic n'assure pas un bon
+ résultat de prognostic, notamment dans le cas du processus Gamma avec un
+ incrément très varié 
+\begin_inset Formula $\left(\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right)\right)$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Par rapport au SIS filtre particulaire, l'implétation de l'étape de redistributi
+on d'adaptation apporte une erreur 
+\begin_inset Formula $RMSE_{globale}$
+\end_inset
+
+ beaucoup plus petite.
+ De plus, comme l'erreur de l'estimation du niveau de dégradation courante
+ (le diagnostic) est plus petite, on obtient une légère amélioration du
+ résultat de prognostic.
+ Enfin, on constate que l'augmentation de 
+\begin_inset Formula $N_{s}$
+\end_inset
+
+ n'apporte pas une amélioration importante pour les résultats 
+\begin_inset Formula $RMSE{}_{globale}$
+\end_inset
+
+ et 
+\begin_inset Formula $RMSE_{t_{n}=500}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Quand l'écart-type du bruit de mesures 
+\begin_inset Formula $\left(\sigma_{\varepsilon}\right)$
+\end_inset
+
+ varie
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="18" columns="7">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell multirow="3" alignment="left" valignment="middle" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\sigma_{\varepsilon}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Filtre SISR avec redistribution d'adaptation, 
+\begin_inset Formula $N_{s}=1000$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula $\Gamma\left(k_{1}=1,\theta_{1}=\nicefrac{2}{3}\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="1" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+\begin_inset Formula $\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell multirow="4" alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{globale}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{t_{n}=500}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{RUL}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{globale}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{t_{n}=500}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $RMSE_{RUL}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.315
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.731
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+32.448
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.651
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.088
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+42.868
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.672
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.096
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+32.862
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.222
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.089
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+42.196
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.027
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.448
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+33.568
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.282
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.086
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+41.021
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.838
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.622
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+33.164
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.474
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.778
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+39.873
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.130
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.543
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+33.274
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.047
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.139
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+42.628
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.052
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.207
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+33.810
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.353
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5.528
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+38.409
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+9
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.444
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5.939
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+36.720
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.268
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.024
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+40.908
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.479
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.305
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+33.661
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.840
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.395
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+40.508
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.371
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.618
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+35.367
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.862
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5.658
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+44.118
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+12
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.512
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6.597
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+37.228
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.873
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.052
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+42.148
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+13
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.546
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.706
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+36.088
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.839
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.720
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+43.288
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+14
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.526
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.077
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+35.697
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.562
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.367
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+42.462
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+15
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.489
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.957
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+38.998
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5.043
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.923
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+39.909
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+16
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.354
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10.794
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+41.591
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5.645
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6.238
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+39.731
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+17
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.445
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.592
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+32.583
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.482
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.628
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+40.944
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Comme on a dit dans la section 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Loi-d'importance"
+
+\end_inset
+
+
+\color inherit
+, choisir la loi d'importance sous la forme du noyau de transition emmène
+ à un filtre particulièrement sensible avec des observations bruitées.
+ Par conséquent, la qualité de l'estimation est instable (cette idée est
+ illustrée dans la figure 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Variation-RMSE-globale"
+
+\end_inset
+
+
+\color inherit
+ où les graphes 
+\begin_inset Formula $RMSE{}_{globale}$
+\end_inset
+
+ sont non linéaires, non monotones).
+ 
+\end_layout
+
+\begin_layout Standard
+D'autre part, on constate que même si 
+\begin_inset Formula $\sigma{}_{\varepsilon}$
+\end_inset
+
+ est grand, le filtre particuliare peut apporte un bon diagnostic si la
+ variance de la distribution 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $\Gamma\left(k,\theta\right)$
+\end_inset
+
+ est suffisamment petite
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+ .
+ Alors que si cette variance est grande, le diagnostic est arbitrairement
+ de mauvaise qualité même si 
+\begin_inset Formula $\sigma{}_{\varepsilon}$
+\end_inset
+
+ est petit.
+ Par exemple, avec l'incrément 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $\Gamma\left(k_{1}=1,\theta_{1}=\nicefrac{2}{3}\right)$
+\end_inset
+
+, 
+\family default
+\series default
+\shape default
+\size default
+\emph default
+\bar default
+\strikeout default
+\uuline default
+\uwave default
+\noun default
+\color inherit
+
+\begin_inset Formula $RMSE_{t_{n}=500}=4.077$
+\end_inset
+
+ quand 
+\begin_inset Formula $\sigma{}_{\varepsilon}=14$
+\end_inset
+
+ tandis que 
+\begin_inset Formula $RMSE_{t_{n}=500}=4.086$
+\end_inset
+
+ quand 
+\begin_inset Formula $\sigma{}_{\varepsilon}=8$
+\end_inset
+
+ avec l'incrément 
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+
+\begin_inset Formula $\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Figures/F17.jpg
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Variation-RMSE-globale"
+
+\end_inset
+
+Variation de 
+\begin_inset Formula $RMSE_{globale}$
+\end_inset
+
+ lorsque 
+\begin_inset Formula $\left(\sigma{}_{\varepsilon}\right)$
+\end_inset
+
+ change 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Figures/F16.jpg
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Variation de 
+\begin_inset Formula $RMSE_{t_{n}=500}$
+\end_inset
+
+ et 
+\begin_inset Formula $RMSE{}_{RUL}$
+\end_inset
+
+ lorsque 
+\begin_inset Formula $\left(\sigma{}_{\varepsilon}\right)$
+\end_inset
+
+ change
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Impact de l'écart-type du bruit de mesures 
+\begin_inset Formula $\left(\sigma_{\varepsilon}\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Loi du temps d'atteinte
+\end_layout
+
+\begin_layout Standard
+Le temps d'atteinte (
+\shape italic
+first hitting time
+\shape default
+ - FHT en anglais) est l'instant où le niveau de dégradation dépasse le
+ seuil de défaillance.
+ La densité de probabilité de FHT en fonction du temps est montrée dans
+ la figure 
+\color red
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Densité-de-la"
+
+\end_inset
+
+
+\color inherit
+.
+ On trouve que cette densité de probabilité devient plus étroite quand l'instant
+ courant approche la date de défaillance 
+\begin_inset Formula $T_{déf}=600$
+\end_inset
+
+.
+ Cela signifie que l'estimation de FHT est plus exacte quand le temps passe.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Figures/Loi du temps d'atteinte (a).jpg
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+Incrément 
+\begin_inset Formula $\Gamma\left(k_{1}=1,\theta_{1}=\nicefrac{2}{3}\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Figures/Loi du temps d'atteinte (b).jpg
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\strikeout off
+\uuline off
+\uwave off
+\noun off
+\color none
+Incrément 
+\begin_inset Formula $\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Densité-de-la"
+
+\end_inset
+
+Densité de probabilité de la loi du temps d'atteinte
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

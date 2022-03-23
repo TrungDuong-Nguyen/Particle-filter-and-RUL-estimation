@@ -1,0 +1,156 @@
+%% LyX 2.3.6.1 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[11pt,oneside,fleqn,french,english,intoc,bibliography=totoc,index=totoc,BCOR10mm,captions=tableheading,titlepage]{scrbook}
+\usepackage{lmodern}
+\renewcommand{\sfdefault}{lmss}
+\renewcommand{\ttdefault}{lmtt}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage[a4paper]{geometry}
+\geometry{verbose,tmargin=3cm,bmargin=3cm,lmargin=2cm,rmargin=2cm}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\setcounter{secnumdepth}{3}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+\usepackage{color}
+\usepackage{babel}
+\makeatletter
+\addto\extrasfrench{%
+   \providecommand{\og}{\leavevmode\flqq~}%
+   \providecommand{\fg}{\ifdim\lastskip>\z@\unskip\fi~\frqq}%
+}
+
+\makeatother
+\usepackage{array}
+\usepackage{float}
+\usepackage{calc}
+\usepackage{units}
+\usepackage{pdfpages}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{setspace}
+\setstretch{1.28}
+\usepackage[unicode=true,
+ bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=1,
+ breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{pdftitle={Your title},
+ pdfauthor={Your name},
+ pdfpagelayout=OneColumn, pdfnewwindow=true, pdfstartview=XYZ, plainpages=false}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+%% A simple dot to overcome graphicx limitations
+\newcommand{\lyxdot}{.}
+
+\floatstyle{ruled}
+\newfloat{algorithm}{tbp}{loa}[chapter]
+\providecommand{\algorithmname}{Algorithm}
+\floatname{algorithm}{\protect\algorithmname}
+
+\@ifundefined{date}{}{\date{}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+% increases link area for cross-references and autoname them
+\AtBeginDocument{\renewcommand{\ref}[1]{\mbox{\autoref{#1}}}}
+\addto\extrasenglish{%
+ \renewcommand*{\equationautorefname}[1]{}
+ \renewcommand{\sectionautorefname}{\negthinspace}
+ \renewcommand{\subsectionautorefname}{\negthinspace}
+ \renewcommand{\subsubsectionautorefname}{\negthinspace}
+ \renewcommand{\figureautorefname}{\negthinspace}
+ \renewcommand{\tableautorefname}{\negthinspace}
+ \renewcommand{\chapterautorefname}{\negthinspace}
+}
+
+% in case somebody want to have the label "Equation"
+%\renewcommand{\eqref}[1]{Equation~(\negthinspace\autoref{#1})}
+
+% that links to image floats jumps to the beginning
+% of the float and not to its caption
+\usepackage[figure]{hypcap}
+
+% the pages of the TOC is numbered roman
+% and a pdf-bookmark for the TOC is added
+\let\myTOC\tableofcontents
+\renewcommand\tableofcontents{%
+  \frontmatter
+  \pdfbookmark[1]{\contentsname}{}
+  \myTOC
+  \mainmatter }
+
+% makes caption labels bold
+\setkomafont{captionlabel}{\bfseries}
+\setcapindent{1em}
+
+% enables calculations
+\usepackage{calc}
+
+% fancy page header/footer settings
+\renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+
+% increases the bottom float placement fraction
+\renewcommand{\bottomfraction}{0.5}
+
+% avoids that floats are placed above its sections
+\let\mySection\section\renewcommand{\section}{\suppressfloats[t]\mySection}
+
+\@ifundefined{showcaptionsetup}{}{%
+ \PassOptionsToPackage{caption=false}{subfig}}
+\usepackage{subfig}
+\makeatother
+
+\addto\captionsfrench{\renewcommand{\algorithmname}{Algorithme}}
+
+\begin{document}
+\selectlanguage{french}%
+
+\lhead{\leftmark}
+
+\rhead{\rightmark}
+\selectlanguage{english}%
+
+\lfoot{}
+\selectlanguage{french}%
+
+\lfoot[\foreignlanguage{french}{\thepage}]{}
+\selectlanguage{english}%
+
+\rfoot{}
+
+\selectlanguage{french}%
+\cleardoublepage{}
+
+\selectlanguage{english}%
+\includepdf{Fiche-Resume}
+
+\selectlanguage{french}%
+\cleardoublepage{}
+
+\tableofcontents{}
+
+\include{Notations}
+
+\include{Chap1}
+
+\selectlanguage{english}%
+\include{Chap2}\selectlanguage{french}
+
+\selectlanguage{english}%
+\include{Chap3}\selectlanguage{french}
+
+\selectlanguage{english}%
+\include{Chap4}
+
+\include{Chap5}
+
+\bibliographystyle{plain}
+\bibliography{BibTex/Bibliography}
+
+\end{document}

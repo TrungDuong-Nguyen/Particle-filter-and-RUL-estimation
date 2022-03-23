@@ -1,0 +1,286 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass scrbook
+\begin_preamble
+% if pdflatex is used
+\usepackage{ifpdf}
+\ifpdf
+
+% set fonts for nicer pdf view
+\IfFileExists{lmodern.sty}
+ {\usepackage{lmodern}}{}
+
+\fi % end if pdflatex is used
+
+% that links to image floats jumps
+% to the beginning of the float and 
+% not to its caption
+\usepackage[figure]{hypcap}
+
+% the pages of the TOC is numbered roman
+% and a PDF-bookmark for the TOC is added
+\let\myTOC\tableofcontents
+\renewcommand\tableofcontents{%
+  \frontmatter
+  \pdfbookmark[1]{\contentsname}{}
+  \myTOC
+  \mainmatter }
+
+% provides caption formatting
+\usepackage[labelfont={bf,sf}]{caption}[2004/07/16]
+
+% provides commands to set caption
+% beside tables/images
+\newcommand{\TabBesBeg}[1][1.0]{%
+ \let\MyTable\table
+ \let\MyEndtable\endtable
+ \renewenvironment{table}[1]{\begin{SCtable}[#1]##1}{\end{SCtable}}}
+
+\newcommand{\TabBesEnd}{%
+ \let\table\MyTable
+ \let\endtable\MyEndtable}
+
+\newcommand{\FigBesBeg}[1][1.0]{%
+ \let\MyFigure\figure
+ \let\MyEndfigure\endfigure
+ \renewenvironment{figure}[1]{\begin{SCfigure}[#1]##1}{\end{SCfigure}}}
+
+\newcommand{\FigBesEnd}{%
+ \let\figure\MyFigure
+ \let\endfigure\MyEndfigure}
+
+% enables calculation of values,
+\usepackage{calc}
+
+% increase the bottom float placement fraction
+\renewcommand{\bottomfraction}{0.5}
+
+% avoids that floats are placed before their
+% corresponding section starts
+\let\mySection\section\renewcommand{\section}{\suppressfloats[t]\mySection}
+
+% speed up the longtable calculation
+\setcounter{LTchunksize}{100}
+
+% used for scaled and rotated boxes
+\@ifundefined{rotatebox}{\usepackage{graphicx}}{}
+
+% used for colored tables
+\@ifundefined{textcolor}
+ {\usepackage{color}}{}
+\definecolor{darkgreen}{cmyk}{0.5, 0, 1, 0.5}
+\definecolor{lightgrey}{gray}{0.8}
+
+% check for package colortbl
+% used for colored table cells
+\newboolean{colortbl}
+\IfFileExists{colortbl.sty}
+ {\usepackage{colortbl}
+  \setboolean{colortbl}{true}}
+ {\setboolean{colortbl}{false}}
+
+% used to have extra space in table cells
+\@ifundefined{extrarowheight}
+ {\usepackage{array}}{}
+\setlength{\extrarowheight}{2pt}
+
+% used for customized tables
+% ---
+\newcolumntype{M}[1]
+ {>{\centering\hspace{0pt}}m{#1}}
+
+\newcolumntype{S}[2]
+ {>{\centering\hspace{0pt}}m{(#1+(2\tabcolsep+\arrayrulewidth)*(1-#2))/#2}}
+
+\newcolumntype{K}[1]
+ {>{\columncolor{#1}\hspace{0pt}}c}
+
+\newcolumntype{V}{!{\vrule width 1.5pt}}
+
+\newcolumntype{W}{!{\color{green}\vline}}
+% ---
+
+% insert additional vertical space of
+% 1.5 mm between footnotes
+\let\myFoot\footnote
+\renewcommand{\footnote}[1]{\myFoot{#1\vspace{1.5mm}}}
+
+% number algorithm floats within chapters
+\numberwithin{algorithm}{chapter}
+
+% ------------------------------------
+% used to check for needed LaTeX packages
+\usepackage{ifthen}
+
+% check for package arydshln
+% used for tables with dashed lines
+\newboolean{arydshln}
+\IfFileExists{arydshln.sty}
+ {\usepackage{arydshln}
+  \setboolean{arydshln}{true}}
+ {\setboolean{arydshln}{false}}
+
+% check for package marginnote
+% used for margin notes
+\newboolean{marginnote}
+\IfFileExists{marginnote.sty}
+ {\usepackage{marginnote}
+  \let\marginpar\marginnote
+  \setboolean{marginnote}{true}}
+ {\setboolean{marginnote}{false}}
+
+% check for package sidecap
+% used for captions on the side
+\newboolean{sidecap}
+\IfFileExists{sidecap.sty}
+ {\usepackage{sidecap}
+  \setboolean{sidecap}{true}}
+ {\setboolean{sidecap}{false}}
+
+% check for picinpar
+% used for surrounded fixed objects
+\newboolean{picinpar}
+\IfFileExists{picinpar.sty}
+ {\usepackage{picinpar}
+  \setboolean{picinpar}{true}}
+ {\setboolean{picinpar}{false}}
+
+% check for lettrine
+\newboolean{lettrine}
+\IfFileExists{lettrine.sty}
+ {\usepackage{lettrine}
+  \setboolean{lettrine}{true}}
+ {\setboolean{lettrine}{false}}
+
+% check for diagbox
+\newboolean{diagbox}
+\IfFileExists{diagbox.sty}
+ {\usepackage{diagbox}
+  \setboolean{diagbox}{true}}
+ {\setboolean{diagbox}{false}}
+
+% create colored tables
+\usepackage{colortbl}
+\end_preamble
+\options fleqn,bibliography=totoc,index=totoc,BCOR7.5mm,titlepage,captions=tableheading,usenames,dvipsnames
+\use_default_options false
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref true
+\pdf_title "LyX's Figure, Table, Floats, Notes, and Boxes manual"
+\pdf_author "LyX Team, Uwe Stöhr"
+\pdf_subject "LyX-documentation about figures, tables, floats, notes, and boxes"
+\pdf_keywords "LyX, Tables, Figures, Floats, Boxes, Notes"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered true
+\pdf_bookmarksopen true
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks true
+\pdf_backref false
+\pdf_pdfusetitle false
+\pdf_quoted_options "linkcolor=black, citecolor=black, urlcolor=blue, filecolor=blue, pdfpagelayout=OneColumn, pdfnewwindow=true, pdfstartview=XYZ, plainpages=false"
+\papersize default
+\use_geometry false
+\use_amsmath 2
+\use_esint 0
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\notefontcolor #0000ff
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+\bullet 1 1 34 -1
+\bullet 2 2 35 -1
+\bullet 3 2 7 -1
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Chapter
+Conclusion
+\end_layout
+
+\begin_layout Standard
+L'objectif de ce stage durant six mois est d'étudier une approche stochastique
+ dite filtre particulaire pour résoudre le problème de diagnostic et prognostic
+ de défaillance.
+ Le processus Gamma est choisi pour modéliser la dégradation.
+ Après avoir chercher à comprendre comment un filtre particulaire est construit,
+ on mette en application des algorithmes fondamentales afin de réaliser
+ l'estimation du niveau de dégradation actuel et puis calculer la durée
+ de vie résiduelle du système d'intérêt.
+ Dans la simulation, on étudie la performance du filtre particulaire lors
+ d'une variation des paramètres importants.
+ De plus, on considère aussi le comportement du filtre particulaire envers
+ deux processus Gamma de l'incréments différents.
+ Des remarques importantes sont retirées en analysant les résultats de simulatio
+n.
+ 
+\end_layout
+
+\begin_layout Standard
+Dans le rapport, des extension sophistiquées du filtre particulaire sont
+ également relevées et d'autres travaux sont en cours pour améliorer sa
+ performance.
+ Par exemple, il est souhaitable d'augmenter vivement la qualité de l'estimation
+ en utilisant habilement les données disponibles puisque un grand nombre
+ de valeurs de mesures incertaines peuvent perturber le filtre particulaire.
+ En effet, les mesures peuvent être effectuées périodiquement ou suivant
+ une loi de probabilité quelconque, c'est à dire l'instant de faire la mesure
+ est une variable aléatoire.
+ Cela nous aide à économiser la dépense.
+\end_layout
+
+\begin_layout Standard
+Les algorithmes du filtre particulaire sont vérifiés par la simulation avec
+ des données crées artificiellement.
+ Il est plus convaincant s'il on a des données réelles acquis d'un vrai
+ processus de dégradation pour examiner l'efficience de ces algorithmes.
+\end_layout
+
+\end_body
+\end_document

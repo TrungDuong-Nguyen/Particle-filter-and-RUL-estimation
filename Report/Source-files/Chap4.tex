@@ -1,0 +1,596 @@
+
+\chapter{Filtre particulaire SISR et l'estimation de la RUL}
+
+Dans le quatrième chapitre, on présente d'abord le filtre particulaire
+SISR (\textit{Sequential Importance Sampling and Resampling} en anglais)
+developpé basant sur le SIS filtre particulaire. Ensuite, on parle
+de l'estimation de la RUL et puis on analyse des résultats de simulation
+et donne des remarques importantes. La loi du temps d'atteinte est
+aussi abordée dans ce chapitre.
+
+\section{Filtre Bootstrap}
+
+Comme on a vu dans le chapitre 3, un grave défaut du filtre particulaire
+SIS est le dégénérescence de poids\textit{ }qui mène à une représentation
+inadéquate de la loi a posteriori\textit{. }Alors, il est indispensable
+de penser à une technique qui vise à ré-initialiser le filtre régulièrement
+pour prévenir ce phénomène. L'idée est d'introduire après l'estimation
+de l'état $\left(x_{t}\right)$, une étape supplémentaire dite \textit{ré-échantillonnage}
+(ou \textit{redistribution}). Dans cette étape, les échantillons ayant
+un poids faible sont éliminés tandis que ceux dont le poids est fort
+sont dupliqués et donc auront plus de chance d'approcher la loi a
+posteriori à l'instant suivant. En général, la redistribution\textit{
+}peut être considérée comme une autre étape d'échantillonnage d'importance\textit{
+}dans laquelle la distribution discrète pondérée $\left\{ x_{t}^{i},\text{W}_{t}^{i}\right\} _{i=1}^{N_{s}}$
+est approchée par un ensemble des échantillons non pondérés (appelés
+les descendants) $\left\{ x_{t}^{i*}\right\} _{i*=1}^{N_{s}}$. De
+cette manière l'écart entre les poids d'importances\textit{ }à chaque
+instant $\left(t\right)$ est réduit et les particules peuvent être
+mieux profités. Un algorithme de SIS filtre particulaire avec la redistribution\textit{
+}à chaque instants $\left(t\right)$ est\textit{ }introduit dans \textcolor{green}{\cite{gordon1993novel}}
+sous le nom \textit{filtre bootstrap .} Cet algorithme que l'on décrit
+dans \textcolor{red}{\ref{alg:filtre-bootstrap}} prend aussi le noyau
+de transition\textit{ }comme la\textit{ }loi d'importance\textit{.}
+
+\begin{algorithm}
+\begin{centering}
+\noindent\begin{minipage}[t]{1\columnwidth}%
+\begin{center}
+À l'instant $\left(t=0\right)$\linebreak{}
+\par\end{center}
+\begin{center}
+\textbf{Initialisation}: $x_{0}^{i}\sim p\left(x_{0}\right),\,i=1:N_{s}$
+\par\end{center}
+\begin{center}
+----------------------------------------------------------------------
+\par\end{center}
+\begin{center}
+À partir de l'instant \textit{$\left(t\geq1\right)$ }\linebreak{}
+\par\end{center}
+\begin{center}
+\textbf{Échantillonnage d'importance $\left(i=1:N_{s}\right)$}
+\par\end{center}
+\begin{center}
+$\begin{cases}
+x_{t}^{i}\sim p(x_{t}^{i}\mid x_{t-1}^{i})\\
+\omega_{t}^{i}=p\left(y_{t}\mid x_{t}^{i}\right)
+\end{cases}$
+\par\end{center}
+\begin{center}
+\textbf{Normaliser}
+\par\end{center}
+\begin{center}
+$\text{W}_{t}^{i}=\frac{\omega_{t}^{i}}{\sum_{i=1}^{N_{s}}\omega_{t}^{i}},\,i=1:N_{s}$
+\par\end{center}
+\begin{center}
+\textbf{Estimer le niveau de dégradation}
+\par\end{center}
+\begin{center}
+$x_{MMSE}={\displaystyle \sum_{i=1}^{N_{s}}\text{W}_{t}^{i}\times x_{t}^{i}}$
+\par\end{center}
+\begin{center}
+\textbf{Redistribution }$\left(i=1:N_{s}\right)$
+\par\end{center}
+\begin{center}
+$x_{t}^{i*}=redistribution(x_{t}^{i},\,\text{W}_{t}^{i})$
+\par\end{center}
+\begin{center}
+$\left(x_{t}^{i}=x_{t}^{i*}\right)$
+\par\end{center}%
+\end{minipage}
+\par\end{centering}
+\caption{\label{alg:filtre-bootstrap}Filtre bootstrap}
+\end{algorithm}
+
+Note que après l'étape de redistribution à l'instant $\left(t-1\right)$
+les échantillons ont des poids uniformes, donc il n'est pas nécessaire
+de sauvegarder ces poids pour l'instant $\left(t\right)$. Alors,
+la formule qui sert à pondérer les échantillons à l'instant $\left(t\right)$
+est très simple $\omega_{t}^{i}=p\left(y_{t}\mid x_{t}\right)$ (pas
+de multiplication récursive). L'utilisation du\textit{ }noyau de transition
+comme la loi d'importance est très populaire car quand le problème
+change (l'équation d'état change), on ne doit que corriger l'expression
+du noyau de transition et de la fonction de vraisemblance\textit{
+}dans le programme\textit{. }
+
+Selon \textcolor{green}{\cite{casella1996statistical}}, \textcolor{green}{\cite{carpenter1999improved}}
+et \textcolor{green}{\cite{johansen2007monte}}, l'étape de redistribution\textit{
+}engendre extra Monte Carlo variance de l'estimateur. Donc, on est
+recommandé d'effectuer préalablement l'estimation de l'état de dégradation
+à chaque instant à l'aide des échantillons pondérés.
+
+Le mécanisme de redistribution\textit{ }est illustrée dans la figure
+\textcolor{red}{\ref{fig:Proc=0000E9dure-de-r=0000E9distribution}}.
+
+\begin{figure}
+\begin{centering}
+\includegraphics[scale=0.5]{Figures/Resampling}
+\par\end{centering}
+\caption{\label{fig:Proc=0000E9dure-de-r=0000E9distribution}Mécanisme de redistribution}
+\end{figure}
+
+En général, le filtre bootstrap\textit{ }ne donne plus une approximation
+efficace de la loi a posteriori\textit{ }quand le temps T $\left(t=1:T\right)$
+est très grand à cause des redistributions successives. En effet,
+le mécanisme de redistribution\textit{ }réduit\textit{ }la diversité
+des particules, c'est-à-dire quand le temps passe, l'ensemble des
+particules contient seulement quelques unes ``distinguées''. La
+plupart entre eux sont des descendants d'un même ancêtre. C'est évidemment
+la conséquence d'effectuer l'échantillonnage d'une distribution discrète
+au lieu d'une distribution continue. Ce phénomène qu'on appelle \textit{dégénérescence
+des positions} (\textit{sample imporverishment} en anglais) a le même
+effet que la dégénérescence de poids\textit{ }mentionnée dans le chapitre
+3. D'après \textcolor{green}{\cite{avitzour1995stochastic}}, si le
+bruit du processus (l'incrément $\Gamma\left(k,\theta\right)$ du
+processus Gamma) a une variance suffisamment grande, les échantillons
+non pondérés $\left\{ x_{t}^{i*}\right\} _{i=1}^{N_{s}}$ peuvent
+être propagés, dans l'étape de prédiction à l'instant suivant, de
+sorte qu'ils peuvent maintenir une diversité adéquate au sein de l'ensemble
+d'échantillons. Au contraire, si $\left\{ x_{t}^{i*}\right\} _{i=1}^{N_{s}}$
+ne sont pas suffisamment contrebalancés par le bruit du processus,
+la qualité de l'approximation de la loi a\textit{ }posteriori est
+dégradée. Pour résoudre ce problème, des mesures sont proposées et
+recapitulées dans \textcolor{green}{\cite{gordon1993novel}}, \textcolor{green}{\cite{arulampalam2002tutorial}},
+\textcolor{green}{\cite{gustafsson2002particle}}, \textcolor{green}{\cite{legland2003filtrage}}
+et \textcolor{green}{\cite{doucet2009tutorial}}.
+
+\section{Filtre SISR avec redistribution d'adaptation \label{sec:Variants}}
+
+Pour obtenir une estimation du niveau de dégradation plus exacte à
+chaque instant $\left(t\right)$, il est possible de modifier l'\textcolor{red}{\ref{alg:filtre-bootstrap}}
+sur les points suivants:
+\begin{labeling}{00.00.0000}
+\item [{-}] La redistribution multinomiale est la plus simple technique
+par l'utilisation delaquelle $N_{s}$ nouveaux échantillons (les descendants)
+sont sélectionnées à partir de $N_{s}$ ancients échantillons avec
+la probabilité égale à leurs poids normalisés: $p\left(x_{t}^{i*}=x{}_{t}^{i}\right)=\text{W}_{t}^{i}$.
+En choissisant d'autres techniques de redistribution on peut réduire
+la variance introduite par l'étape de redistribution\textit{.} L'une
+est la technique de redistribution systématique proposée par Kitagawa
+\textcolor{green}{\cite{kitagawa1996monte}} et l'autre est la redistribution
+des résidus introduite par Liu et Chen \textcolor{green}{\cite{liu1998sequential}}.
+Une comparaison sur la qualité et la complexité de ces trois techniques
+est effectué dans \textcolor{green}{\cite{douc2005comparison}} et
+\textcolor{green}{\cite{hol2006resampling}}. Dans ce rapport les
+résultats de la simulation sont obtenus avec l'utilisation de la technique
+de redistribution de Kitagawa dont le code est donné dans \textcolor{green}{\cite{campillo2006filtrage}}. 
+\item [{-}] On peut améliorer la performance du filtre particulaire en
+augmentant le nombre d'échantillons. Néanmoins, cela ne paraît pas
+comme une solution pratique. Il est préférable de choisir une meilleure
+loi d'importance\textit{.} \textcolor{green}{\cite{cappe2007overview}}
+donne un bon résumé sur cette alternative . Une loi d'importance\textit{
+}optimale obtenu dans un cas particulier est représenté dans \textcolor{green}{\cite{doucet2000sequential}}
+et \textcolor{green}{\cite{arulampalam2002tutorial}}.
+\item [{-}] On sait maintenant que l'on ne doit pas redistribuer à chaque
+instant mais de le faire de telle manière que la redistribution puisse
+prévenir la\textit{ }dégénérescence de poids\textit{ }et ne cause
+pas une dégénérescence des positions\textit{ }trop grave. Autrement
+dit, les échantillons sont redistribués seulement quand un grand déséquilibre
+de leurs poids d'importances est constaté. Alors, on souhaite de disposer
+une critère qui nous permet de déterminer s'il est nécessaire de redistribuer
+les échantillons ou s'il faut les conserver. \textcolor{green}{\cite{kong1994sequential}},
+\textcolor{green}{\cite{liu1995blind}} quantifient le niveau de déséquilibre
+des poids d'importances en utilisant un coefficient appelé nombre
+d'échantillons effectives:
+\[
+N_{eff}\approx\frac{1}{\sum_{i=1}^{N_{s}}\left(\text{W}_{t}^{i}\right)^{2}}\in\left[1,N_{s}\right]
+\]
+\end{labeling}
+Lorsque $N_{eff}$ est proche de $N_{s}$, les échantillons contribuent
+de façon égale à l'approximation de la loi a posteriori\textit{ }tandis
+que une valeur proche de 1 indique une dégénérescence de poids\textit{
+}sévère. La redistribution est faite seulement quand $N_{eff}$ est
+inférieur à un seuil $N_{thresh}$ prédéterminé, typiquement $N_{thresh}=\frac{N_{s}}{2}$.
+
+Tenir compte de la premier et de la troisième modification mentionnées
+au dessus, un algorithme du filtre SISR avec redistribution d'adaptation
+est présenté dans l'\textcolor{red}{\ref{alg:-Filtre-adaptive}}.
+
+\begin{algorithm}
+\begin{centering}
+\noindent\begin{minipage}[t]{1\columnwidth}%
+\begin{center}
+À l'instant $\left(t=0\right)$\linebreak{}
+\par\end{center}
+\begin{center}
+\textbf{Initialisation}:$\begin{cases}
+x_{0}^{i} & \sim p\left(x_{0}\right)\\
+\omega_{0}^{i} & =\nicefrac{1}{N_{s}}
+\end{cases},\,i=1:N_{s}$
+\par\end{center}
+\begin{center}
+-----------------------------------------------------------------------
+\par\end{center}
+\begin{center}
+À partir de l'instant \textit{$\left(t\geq1\right)$}\linebreak{}
+\par\end{center}
+\begin{center}
+\textbf{Échantillonnage d'importance}
+\par\end{center}
+\begin{center}
+$\begin{cases}
+x_{t}^{i} & \sim p(x_{t}^{i}\mid x_{t-1}^{i})\\
+\omega_{t}^{i} & =\omega_{t}^{i}\times p\left(y_{t}\mid x_{t}^{i}\right)
+\end{cases}$
+\par\end{center}
+\begin{center}
+\textbf{Normaliser}
+\par\end{center}
+\begin{center}
+$\text{W}_{t}^{i}=\frac{\omega_{t}^{i}}{\sum_{i=1}^{N_{s}}\omega_{t}^{i}},\,i=1:N_{s}$
+\par\end{center}
+\begin{center}
+\textbf{Estimer le niveau de dégradation}
+\par\end{center}
+\begin{center}
+$x_{MMSE}={\displaystyle \sum_{i=1}^{N_{s}}\text{W}_{t}^{i}\times x_{t}^{i}}$
+\par\end{center}
+\begin{center}
+\textbf{Calculer le nombre d'échantillons effectives}
+\par\end{center}
+\begin{center}
+$N_{eff}=\frac{1}{{\displaystyle \sum_{i=1}^{N_{s}}\left(\text{W}_{t}^{i}\right)^{2}}}$
+\par\end{center}
+\begin{center}
+Si $N_{eff}\leq N_{thresh}$ alors
+\par\end{center}
+\begin{center}
+\textbf{Redistribution }$\left(i=1:N_{s}\right)$
+\par\end{center}
+\begin{center}
+$x_{t}^{i*}=redistribution(x_{t}^{i},\,\text{W}_{t}^{i})$
+\par\end{center}
+\begin{center}
+$\begin{cases}
+x_{t}^{i}=x{}_{t}^{i*}\\
+\omega_{t}^{i}=\nicefrac{1}{N}_{s}
+\end{cases}$
+\par\end{center}%
+\end{minipage}
+\par\end{centering}
+\caption{\label{alg:-Filtre-adaptive} Filtre SISR avec redistribution d'adaptation\textit{.}}
+\end{algorithm}
+
+Comme on a dit au dessus, la redistribution\textit{ }donne effectivement
+des ``bruits'' additionnels. Cependant, redistribuer des échantillons
+nous aide à éviter l'accumulation des erreurs avec le temps et donc
+rendre l'approximation de la loi a posteriori plus stable \textcolor{green}{\cite{doucet2009tutorial}}
+, \textcolor{green}{\cite{cappe2007overview}}. C'est la raison pourlaquelle
+la redistribution est largement utilisée. En pratique, implémenter
+correctement l'étape de redistribution peut améliorer vivement la
+performance du filtre particulaire. Pour illustrer cette idée, on
+défini tout d'abord un indicateur qui désigne l'erreur quadratique
+moyenne de l'estimation à chaque instant $\left(t\right)$:
+\begin{equation}
+RMSE_{t}=\sqrt{\frac{1}{300}\times\sum_{k=1}^{300}\left(\left(x_{MMSE}\right)_{t}^{k}-x_{t}\right)^{2}}\label{eq:RMSE_t}
+\end{equation}
+avec l'ensemble$\left\{ \left(x_{MMSE}\right)_{t}^{k}\right\} _{k=1}^{300}$
+contient 300 valeurs estimées du niveau de dégradation réel $\left(x_{t}\right)$
+à chaque instant $\left(t=1:500\right)$, obtenues après k = 300 itérations.
+
+En utilisant les algorithmes \textcolor{red}{\ref{alg:Algorithme SIS filtre particulaire}}
+et \textcolor{red}{\ref{alg:-Filtre-adaptive}}, on obtient pour chacun
+les valeurs $RMSE_{t}$ ainsi que les variance $var\left(\left\{ \left(x_{MMSE}\right)_{t}^{k}\right\} _{k=1}^{300}\right)$
+à chaque instant $\left(t=1:500\right)$ correspondantes. Les avantages
+de l'utilisation d'un filtre SISR avec redistribution d'adaption au
+lieu d'un SIS filtre particulaire est indiquer dans la figure \textcolor{red}{\ref{fig:RMSE_t}}.
+
+\begin{figure}
+\subfloat[SIS filtre particulaire]{\includegraphics[scale=0.3]{\string"Figures/RMSE à chaque instant (a)\string".eps}
+
+\includegraphics[scale=0.3]{\string"Figures/variance à chaque instant (a)\string".eps}
+
+}
+
+\subfloat[Filtre SISR avec redistribution adaptive]{\includegraphics[scale=0.3]{\string"Figures/RMSE à chaque instant (b)\string".eps}
+
+\includegraphics[scale=0.3]{\string"Figures/variance à chaque instant (b)\string".eps}
+
+}
+
+\caption{\label{fig:RMSE_t}$RMSE_{t}$ et $var\left(\left\{ \left(x_{MMSE}\right)_{t}^{k}\right\} _{k=1}^{300}\right)$
+à chaque instant $\left(t=1:500\right)$ }
+\end{figure}
+
+La trajectoire de $RMSE_{t}$ dans la figure \textcolor{red}{\ref{fig:RMSE_t}}
+n'est pas monotone, ce qui nous mette en difficulté à donner une conclusion
+certaine sur l'exactitude de l'estimation du niveau de dégradation.
+Plus précisément, il est probable qu'un grand nombre de mesures effectuées
+n'assurent pas une amélioration de la qualité de l'estimation. En
+effet, l'utilisation beaucoup de données bruitées peuvent diminuer
+la performance du filtre particulaire. Alors, on pense à utiliser
+de manière plus intelligemment un moindre données pour les profiter
+mais sans avoir perturber le filtre particulaire.
+
+\section{Estimation de la RUL}
+
+Rappelons que l'instant courant est $\left(t_{n}=500\right)$. Pour
+calculer la vie résiduelle, on propage le processus Gamma avec le
+niveau de dégradation initial $\left(x_{MMSE}\right)_{t=500}^{k},k=1:300$
+jusqu'au moment $\left(t\right)$ où $\left(x_{MMSE}\right)_{t}^{k}$
+atteint un seuil prédéterminé appelé seuil de défaillance. Alors,
+si la date de défaillance prévue est notée $T_{d\acute{e}f}$, la
+RUL correspondant est:
+\[
+RUL=T_{d\acute{e}f}-t_{n}=T_{d\acute{e}f}-500
+\]
+En répétant cette procédure $k=300$ fois, on obtient la distribution
+de la RUL.
+
+Avant de faire la simulation, il est indispensable de déterminer le
+seuil de défaillance $S_{d\acute{e}f}$. Suppose que la date de défaillance
+réel est $T_{d\acute{e}f}=600$, donc la RUL réelle est 100. La figure
+\textcolor{red}{\ref{fig:Seuil-de-d=0000E9faillance}} montre que
+le seuil de défaillance correspondant de deux processus Gamma de l'incrément
+$\Gamma\left(k_{1}=1,\theta_{1}=\nicefrac{2}{3}\right)$ et $\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right)$
+est 424.5 et 347.4 respectivement.
+
+\begin{center}
+\begin{figure}[h]
+\begin{centering}
+\includegraphics[scale=0.7]{\string"Figures/Seui de défaillance\string".eps}
+\par\end{centering}
+\caption{\label{fig:Seuil-de-d=0000E9faillance}Seuil de défaillance}
+\end{figure}
+\par\end{center}
+
+L'évolution du niveau de dégradation est montrée dans la figure \textcolor{red}{\ref{fig:Estimation-de-la}}.
+La distribution de la RUL estimée est dessinée en couleur verte.
+
+\begin{figure}[h]
+\begin{centering}
+\subfloat[Processus Gamma de l'incrément $\Gamma\left(k_{1}=1,\theta_{1}=\nicefrac{2}{3}\right)$]{\begin{centering}
+\includegraphics[scale=0.25]{\string"Figures/Estimation de la RUL (a)\string".eps}
+\par\end{centering}
+\begin{centering}
+\includegraphics[scale=0.25]{\string"Figures/Estimation de la RUL en fonction de temps (a)\string".eps}
+\par\end{centering}
+}
+\par\end{centering}
+\begin{centering}
+\subfloat[Processus Gamma de l'incrément $\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right)$]{\begin{centering}
+\includegraphics[scale=0.25]{\string"Figures/Estimation de la RUL (b)\string".eps}
+\par\end{centering}
+\begin{centering}
+\includegraphics[scale=0.25]{\string"Figures/Estimation de la RUL en fonction de temps (b)\string".eps}
+\par\end{centering}
+}
+\par\end{centering}
+\caption{\label{fig:Estimation-de-la}Estimation de la RUL}
+\end{figure}
+
+
+\section{Résultats de simulation}
+
+Dans cette section, on cherche à comprendre l'impact de deux paramètres:
+nombre d'échantillons $\left(N_{s}\right)$ et l'écart-type du bruit
+de mesures $\left(\sigma_{\varepsilon}\right)$ sur la performance
+du filtre particulaire.
+
+\subsection{Quand le nombre d'échantillons $\left(N_{s}\right)$ augmente}
+
+D'abord, on introduit un nouveau indicateur $RMSE_{globale}$ pour
+avoir une vue globale sur l'importance des paramètres comme le nombre
+d'échantillons $N_{s}$ et l'écart-type du bruit de mesures $\sigma_{\varepsilon}$:
+\[
+RMSE_{globale}^{k}=\sqrt{\frac{1}{T}\sum_{t=1}^{T}\left(\left(x_{MMSE}\right)_{t}^{k}-x_{t}\right)^{2}}
+\]
+Car à chaque simulation $\left(k\right)$, le filtre particulaire
+produit une différente trajectoire du niveau de dégradation estimé
+$\left\{ x_{MMSE}\right\} _{t=1}^{T},T=500$, donc les valeurs $RMSE_{globale}$
+affichées dans les tableaux suivants est la moyenne des valeurs $RMSE_{globale}^{k}$
+obtenues après $\left(k=300\right)$ simulations. Plus on obtient
+un $RMSE_{globale}$ petit, plus il est probable que l'on peut avoir
+une estimation précise.
+
+Calculée selon la formule \textcolor{blue}{\eqref{eq:RMSE_t}} avec
+$\left(t=500\right)$, $RMSE_{t_{n}=500}$ désigne l'erreur de l'estimation
+du niveau de dégradation à l'instant courant.
+
+Un troisième indicateur utilisé est $RMSE_{RUL}$ qui indique l'erreur
+de l'estimation de la RUL par rapport à la RUL réelle (=100):
+\[
+RMSE_{RUL}=\sqrt{\frac{1}{300}\times\sum_{k=1}^{300}\left(\left(RUL\right)_{k}-100\right)^{2}}
+\]
+
+Les résultats de simulation sont présentés dans les tableaux suivantes:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline 
+\multirow{3}{*}{$N_{s}$} & \multicolumn{6}{c|}{$\Gamma\left(k_{1}=1,\theta_{1}=\nicefrac{2}{3}\right),\sigma_{\varepsilon}=5$}\tabularnewline
+\cline{2-7} \cline{3-7} \cline{4-7} \cline{5-7} \cline{6-7} \cline{7-7} 
+ & \multicolumn{3}{c|}{SIS filtre particulaire} & \multicolumn{3}{c|}{Filtre SISR avec redistribution d'adaptation}\tabularnewline
+\cline{2-7} \cline{3-7} \cline{4-7} \cline{5-7} \cline{6-7} \cline{7-7} 
+ & $RMSE_{globale}$ & $RMSE_{t_{n}=500}$ & $RMSE_{RUL}$ & $RMSE_{globale}$ & $RMSE_{t_{n}=500}$ & $RMSE_{RUL}$\tabularnewline
+\hline 
+50 & 4.832 & 7.963 & 37.771 & 2.074 & 3.705 & 34.473\tabularnewline
+\hline 
+100 & 4.390 & 8.114 & 36.933 & 2.047 & 3.643 & 34.430\tabularnewline
+\hline 
+300 & 4.030 & 6.798 & 35.375 & 2.033 & 3.494 & 35.741\tabularnewline
+\hline 
+500 & 3.890 & 7.604 & 38.099 & 2.031 & 3.490 & 35.005\tabularnewline
+\hline 
+1000 & 3.671 & 7.394 & 37.463 & 2.027 & 3.448 & 33.568\tabularnewline
+\hline 
+2000 & 3.539 & 7.232 & 36.946 & 2.028 & 3.473 & 35.628\tabularnewline
+\hline 
+4000 & 3.354 & 7.357 & 36.725 & 2.025 & 3.444 & 33.866\tabularnewline
+\hline 
+7000 & 3.240 & 7.140 & 36.827 & 2.025 & 3.440 & 34.400\tabularnewline
+\hline 
+10000 & 3.179 & 6.623 & 35.948 & 2.025 & 3.429 & 33.925\tabularnewline
+\hline 
+\end{tabular}
+\par\end{center}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline 
+\multirow{3}{*}{$N_{s}$} & \multicolumn{6}{c|}{$\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right),\sigma_{\varepsilon}=5$}\tabularnewline
+\cline{2-7} \cline{3-7} \cline{4-7} \cline{5-7} \cline{6-7} \cline{7-7} 
+ & \multicolumn{3}{c|}{SIS filtre particulaire} & \multicolumn{3}{c|}{Filtre SISR avec redistribution d'adaptation}\tabularnewline
+\cline{2-7} \cline{3-7} \cline{4-7} \cline{5-7} \cline{6-7} \cline{7-7} 
+ & $RMSE_{globale}$ & $RMSE_{t_{n}=500}$ & $RMSE_{RUL}$ & $RMSE_{globale}$ & $RMSE_{t_{n}=500}$ & $RMSE_{RUL}$\tabularnewline
+\hline 
+50 & 11.237 & 19.822 & 44.955 & 2.498 & 4.608 & 41.677\tabularnewline
+\hline 
+100 & 9.980 & 14.886 & 44.364 & 2.392 & 4.144 & 40.025\tabularnewline
+\hline 
+300 & 8.801 & 11.447 & 42.990 & 2.311 & 4.117 & 40.475\tabularnewline
+\hline 
+500 & 8.361 & 11.570 & 42.283 & 2.298 & 4.116 & 42.015\tabularnewline
+\hline 
+1000 & 7.955 & 10.604 & 43.700 & 2.282 & 4.086 & 41.021\tabularnewline
+\hline 
+2000 & 7.467 & 10.499 & 39.610 & 2.278 & 4.117 & 38.559\tabularnewline
+\hline 
+4000 & 7.171 & 9.137 & 45.841 & 2.275 & 4.136 & 42.825\tabularnewline
+\hline 
+7000 & 6.846 & 9.406 & 43.610 & 2.274 & 4.126 & 40.738\tabularnewline
+\hline 
+10000 & 6.680 & 8.471 & 42.690 & 2.274 & 4.127 & 38.779\tabularnewline
+\hline 
+\end{tabular}
+\par\end{center}
+
+Avec le SIS filtre particulaire, on trouve que plus $\left(N_{s}\right)$
+est grand, plus $RMSE_{globale}$ décroit. Néanmoins, pour la raison
+spécifiée dans la section \textcolor{red}{\ref{sec:Variants}}, une
+valeur $RMSE_{globale}$ petite n'assure pas une erreur de l'estimation
+petite. Par ailleurs, avec un grand $\left(N_{s}\right)$, le filtre
+particulaire donne des valeurs $RMSE_{globale}$ et $RMSE_{t_{n}=500}$
+plus robuste.
+
+En utilisant un SIS filtre particulaire, le processus Gamma dont l'incrément
+$\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right)$ ayant une
+variance plus grande offre des erreurs $RMSE_{globale}$, $RMSE_{t_{n}=500}$
+et dans une certaine mesure, $RMSE_{RUL}$ plus grandes. C'est parce
+que un tel processus subit une dégénérescence de poids plus sévère.
+Avec l'algorithme du filtre SISR avec redistribution d'adaptation,
+la différence entre les deux processus Gamma au vu des indicateurs
+$RMSE_{globale}$ et $RMSE_{t_{n}=500}$ est réduite. Pourtant, $RMSE_{RUL}$
+reste encore différé significativement car l'estimation de la RUL
+est fortement influencé par la variance de l'incrément (voir figure
+\textcolor{red}{\ref{fig:Estimation-de-la}}). C'est aussi la raison
+pourlaquelle un bon diagnostic n'assure pas un bon résultat de prognostic,
+notamment dans le cas du processus Gamma avec un incrément très varié
+$\left(\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right)\right)$. 
+
+Par rapport au SIS filtre particulaire, l'implétation de l'étape de
+redistribution d'adaptation apporte une erreur $RMSE_{globale}$ beaucoup
+plus petite. De plus, comme l'erreur de l'estimation du niveau de
+dégradation courante (le diagnostic) est plus petite, on obtient une
+légère amélioration du résultat de prognostic. Enfin, on constate
+que l'augmentation de $N_{s}$ n'apporte pas une amélioration importante
+pour les résultats $RMSE_{globale}$ et $RMSE_{t_{n}=500}$.
+
+\subsection{Quand l'écart-type du bruit de mesures $\left(\sigma_{\varepsilon}\right)$
+varie}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline 
+\multirow{3}{*}{$\sigma_{\varepsilon}$} & \multicolumn{6}{c|}{Filtre SISR avec redistribution d'adaptation, $N_{s}=1000$}\tabularnewline
+\cline{2-7} \cline{3-7} \cline{4-7} \cline{5-7} \cline{6-7} \cline{7-7} 
+ & \multicolumn{3}{c|}{$\Gamma\left(k_{1}=1,\theta_{1}=\nicefrac{2}{3}\right)$} & \multicolumn{3}{c|}{$\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right)$}\tabularnewline
+\cline{2-7} \cline{3-7} \cline{4-7} \cline{5-7} \cline{6-7} \cline{7-7} 
+ & $RMSE_{globale}$ & $RMSE_{t_{n}=500}$ & $RMSE_{RUL}$ & $RMSE_{globale}$ & $RMSE_{t_{n}=500}$ & $RMSE_{RUL}$\tabularnewline
+\hline 
+3 & 1.315 & 0.731 & 32.448 & 1.651 & 0.088 & 42.868\tabularnewline
+\hline 
+4 & 1.672 & 1.096 & 32.862 & 2.222 & 1.089 & 42.196\tabularnewline
+\hline 
+5 & 2.027 & 3.448 & 33.568 & 2.282 & 4.086 & 41.021\tabularnewline
+\hline 
+6 & 1.838 & 1.622 & 33.164 & 2.474 & 2.778 & 39.873\tabularnewline
+\hline 
+7 & 2.130 & 2.543 & 33.274 & 3.047 & 0.139 & 42.628\tabularnewline
+\hline 
+8 & 2.052 & 3.207 & 33.810 & 3.353 & 5.528 & 38.409\tabularnewline
+\hline 
+9 & 2.444 & 5.939 & 36.720 & 3.268 & 2.024 & 40.908\tabularnewline
+\hline 
+10 & 2.479 & 2.305 & 33.661 & 3.840 & 0.395 & 40.508\tabularnewline
+\hline 
+11 & 2.371 & 4.618 & 35.367 & 3.862 & 5.658 & 44.118\tabularnewline
+\hline 
+12 & 2.512 & 6.597 & 37.228 & 3.873 & 2.052 & 42.148\tabularnewline
+\hline 
+13 & 3.546 & 4.706 & 36.088 & 3.839 & 0.720 & 43.288\tabularnewline
+\hline 
+14 & 2.526 & 4.077 & 35.697 & 4.562 & 3.367 & 42.462\tabularnewline
+\hline 
+15 & 3.489 & 7.957 & 38.998 & 5.043 & 0.923 & 39.909\tabularnewline
+\hline 
+16 & 3.354 & 10.794 & 41.591 & 5.645 & 6.238 & 39.731\tabularnewline
+\hline 
+17 & 3.445 & 2.592 & 32.583 & 4.482 & 0.628 & 40.944\tabularnewline
+\hline 
+\end{tabular}
+\par\end{center}
+
+Comme on a dit dans la section \textcolor{red}{\ref{sec:Loi-d'importance}},
+choisir la loi d'importance sous la forme du noyau de transition emmène
+à un filtre particulièrement sensible avec des observations bruitées.
+Par conséquent, la qualité de l'estimation est instable (cette idée
+est illustrée dans la figure \textcolor{red}{\ref{fig:Variation-RMSE-globale}}
+où les graphes $RMSE_{globale}$ sont non linéaires, non monotones). 
+
+D'autre part, on constate que même si $\sigma{}_{\varepsilon}$ est
+grand, le filtre particuliare peut apporte un bon diagnostic si la
+variance de la distribution $\Gamma\left(k,\theta\right)$ est suffisamment
+petite . Alors que si cette variance est grande, le diagnostic est
+arbitrairement de mauvaise qualité même si $\sigma{}_{\varepsilon}$
+est petit. Par exemple, avec l'incrément $\Gamma\left(k_{1}=1,\theta_{1}=\nicefrac{2}{3}\right)$,
+$RMSE_{t_{n}=500}=4.077$ quand $\sigma{}_{\varepsilon}=14$ tandis
+que $RMSE_{t_{n}=500}=4.086$ quand $\sigma{}_{\varepsilon}=8$ avec
+l'incrément $\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right)$.
+
+\begin{figure}
+\begin{centering}
+\subfloat[\label{fig:Variation-RMSE-globale}Variation de $RMSE_{globale}$
+lorsque $\left(\sigma{}_{\varepsilon}\right)$ change ]{\begin{centering}
+\includegraphics[scale=0.5]{Figures/F17}
+\par\end{centering}
+}
+\par\end{centering}
+\begin{centering}
+\subfloat[Variation de $RMSE_{t_{n}=500}$ et $RMSE_{RUL}$ lorsque $\left(\sigma{}_{\varepsilon}\right)$
+change]{\begin{centering}
+\includegraphics[scale=0.5]{Figures/F16}
+\par\end{centering}
+}
+\par\end{centering}
+\caption{Impact de l'écart-type du bruit de mesures $\left(\sigma_{\varepsilon}\right)$}
+\end{figure}
+
+
+\subsection{Loi du temps d'atteinte}
+
+Le temps d'atteinte (\textit{first hitting time} - FHT en anglais)
+est l'instant où le niveau de dégradation dépasse le seuil de défaillance.
+La densité de probabilité de FHT en fonction du temps est montrée
+dans la figure \textcolor{red}{\ref{fig:Densit=0000E9-de-la}}. On
+trouve que cette densité de probabilité devient plus étroite quand
+l'instant courant approche la date de défaillance $T_{d\acute{e}f}=600$.
+Cela signifie que l'estimation de FHT est plus exacte quand le temps
+passe.
+
+\begin{figure}[h]
+\begin{centering}
+\subfloat[Incrément $\Gamma\left(k_{1}=1,\theta_{1}=\nicefrac{2}{3}\right)$]{\begin{centering}
+\includegraphics[scale=0.4]{\string"Figures/Loi du temps d'atteinte (a)\string".eps}
+\par\end{centering}
+}
+\par\end{centering}
+\begin{centering}
+\subfloat[Incrément $\Gamma\left(k_{2}=\nicefrac{1}{9},\theta_{2}=6\right)$]{\begin{centering}
+\includegraphics[scale=0.4]{\string"Figures/Loi du temps d'atteinte (b)\string".eps}
+\par\end{centering}
+}
+\par\end{centering}
+\caption{\label{fig:Densit=0000E9-de-la}Densité de probabilité de la loi du
+temps d'atteinte}
+\end{figure}
+
