@@ -13,3 +13,8 @@ In the first step, based on the noisy measurement values, I try to find the indi
 After obtaining the indicators mentioned above, the second step is to calculate the residual life by propagating the Gamma process until the degradation level reaches a predetermined failure threshold.
 
 Matlab is the programming language used in all the calculation steps.
+
+<br>
+
+## Notes
+A short report written in French is available [here](). You can find extractions in English of the report, including  [_Problem Statement_](/Report/Problem-statement.pdf) and [_Conclusion_](/Report/Conclusion.pdf).
