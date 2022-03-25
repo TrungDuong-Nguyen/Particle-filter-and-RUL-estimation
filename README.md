@@ -17,4 +17,7 @@ Matlab is the programming language used in all the calculation steps.
 <br>
 
 ## Notes
-A short report written in French is available [here](). You can find extractions in English of the report, including  [_Problem Statement_](/Report/Problem-statement.pdf) and [_Conclusion_](/Report/Conclusion.pdf).
+A short report written in French is available [here](/Report/Rapport-de-stage.pdf). You can find extractions in English of the report, including  [_Problem Statement_](/Report/Problem-statement.pdf) and [_Conclusion_](/Report/Conclusion.pdf). The list of references are given in folder [Bibliography](/Report/Bibliography/). Also, there is a [17-pages slide](/Presentation-slide/Slide-de-presentation_Soutenance-Master.pdf) presents the outcomes of this study.
+
+Folder [Code-snippets](/Code-snippets/) contains the Matlab implementation of the SIS particle filter.
+
